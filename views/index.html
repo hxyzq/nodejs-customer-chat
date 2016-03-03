@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/stylesheets/qx_chat.css">
+
+  </head>
+  <body>
+
+    <!-- 在线用户列表 -->
+    <div class="col-sm-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span class="glyphicon glyphicon-list"></span>
+          &nbsp;在线用户
+        </div>
+        <div class="panel-body list-body">
+          <table class="table table-hover list-table" id="userlist">
+            <!-- <tr> -->
+            <!-- <td>test</td> -->
+            <!-- </tr> -->
+          </table>
+        </div>
+        <div class="panel-footer" id="userlist-count">当前在线：0人</div>
+      </div>
+    </div>
+
+    <!-- 在线客服列表 -->
+    <div class="col-sm-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span class="glyphicon glyphicon-list"></span>
+          &nbsp;在线客服
+        </div>
+        <div class="panel-body list-body">
+          <table class="table table-hover list-table" id="stafflist">
+            <!-- <tr> -->
+            <!-- <td>test</td> -->
+            <!-- </tr> -->
+          </table>
+        </div>
+        <div class="panel-footer" id="stafflist-count">当前在线：0人</div>
+      </div>
+    </div>
+
+    <!-- 正在服务列表 -->
+    <div class="col-sm-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span class="glyphicon glyphicon-list"></span>
+          &nbsp;正在服务列表
+        </div>
+        <div class="panel-body list-body">
+          <table class="table table-hover list-table" id="servicelist">
+            <!-- <tr> -->
+            <!-- <td>test</td> -->
+            <!-- </tr> -->
+          </table>
+        </div>
+        <div class="panel-footer" id="servicelist-count">正在服务：0</div>
+      </div>
+    </div>
+
+
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      $(function() {
+        var socket = io();
+
+        var staffid = Math.random()*900000|0100000; //生成6位随机数
+        var staffname = '客服' + staffid;
+
+        socket.on('connect', function() {
+
+          socket.emit('staff login', {
+            id: staffid,
+            name: staffname
+          });
+
+        });
+
+        //维护在线用户列表
+        socket.on('add onlineUser', function(data) {
+          if (isUserNameExist(data.name) === false) {
+            addUserToList(data.name);
+            updateUserListCount();
+          }
+        });
+
+        socket.on('remove onlineUser', function(data) {
+          removeListUser(data.name);
+          updateUserListCount();
+        });
+
+        function addUserToList(data) {
+          $("#userlist").append('<tr><td>' + data + '</td></tr>');
+        }
+
+        function removeListUser(data) {
+          $("#userlist tr").each(function () {
+            if (data == $(this).find('td').text()) {
+              $(this).remove();
+            }
+          });
+        }
+
+        function updateUserListCount() {
+          var list_count = $("#userlist").find('tr').length;
+          $("#userlist-count").text("当前在线：" + list_count + "人");
+        }
+
+        function isUserNameExist(data) {
+          var find = false;
+          $("#userlist tr").each(function () {
+            if (data == $(this).find('td').text()) {
+              find = true;
+            }
+          });
+          return find;
+        }
+
+        //维护在线客服列表
+        socket.on('add onlineStaff', function(data) {
+          if (isStaffNameExist(data.name) === false) {
+            addStaffToList(data.name);
+            updateStaffListCount();
+          }
+        });
+
+        socket.on('remove onlineStaff', function(data) {
+          removeListStaff(data.name);
+          updateStaffListCount();
+        });
+
+        function addStaffToList(data) {
+          $("#stafflist").append('<tr><td>' + data + '</td></tr>');
+        }
+
+        function removeListStaff(data) {
+          $("#stafflist tr").each(function () {
+            if (data == $(this).find('td').text()) {
+              $(this).remove();
+            }
+          });
+        }
+
+        function updateStaffListCount() {
+          var list_count = $("#stafflist").find('tr').length;
+          $("#stafflist-count").text("当前在线：" + list_count + "人");
+        }
+
+        function isStaffNameExist(data) {
+          var find = false;
+          $("#stafflist tr").each(function () {
+            if (data == $(this).find('td').text()) {
+              find = true;
+            }
+          });
+          return find;
+        }
+
+        //维护正在服务列表
+        socket.on('add service', function(data) {
+          if (isServiceExist(data.service) === false) {
+            addServiceToList(data.service);
+            updateServiceListCount();
+          }
+        });
+
+        function addServiceToList(data) {
+          $("#servicelist").append('<tr><td>' + data + '</td></tr>');
+        }
+
+        function updateServiceListCount() {
+          var list_count = $("#servicelist").find('tr').length;
+          $("#servicelist-count").text("正在服务：" + list_count);
+        }
+
+        function isServiceExist(data) {
+          var find = false;
+          $("#servicelist tr").each(function () {
+            if (data == $(this).find('td').text()) {
+              find = true;
+            }
+          });
+          return find;
+        }
+
+      });
+    </script>
+  </body>
+</html>

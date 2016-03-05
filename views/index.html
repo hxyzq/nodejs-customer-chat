@@ -74,7 +74,7 @@
       $(function() {
         var socket = io();
 
-        var staffid = Math.random()*900000|0100000; //生成6位随机数
+        var staffid = Math.random()*900000|0+100000; //生成6位随机数
         var staffname = '客服' + staffid;
 
         socket.on('connect', function() {
@@ -87,14 +87,15 @@
         });
 
         //维护在线用户列表
-        socket.on('add onlineUser', function(data) {
-          if (isUserNameExist(data.name) === false) {
-            addUserToList(data.name);
-            updateUserListCount();
+        socket.on('update userlist', function(data) {
+          $("#userlist").empty();
+          for (var i = data.length - 1; i >= 0; i--) {
+            addUserToList(data[i]);
           }
+          updateUserListCount();
         });
 
-        socket.on('remove onlineUser', function(data) {
+        socket.on('remove user', function(data) {
           removeListUser(data.name);
           updateUserListCount();
         });
@@ -116,25 +117,16 @@
           $("#userlist-count").text("当前在线：" + list_count + "人");
         }
 
-        function isUserNameExist(data) {
-          var find = false;
-          $("#userlist tr").each(function () {
-            if (data == $(this).find('td').text()) {
-              find = true;
-            }
-          });
-          return find;
-        }
-
         //维护在线客服列表
-        socket.on('add onlineStaff', function(data) {
-          if (isStaffNameExist(data.name) === false) {
-            addStaffToList(data.name);
-            updateStaffListCount();
+        socket.on('update stafflist', function(data) {
+          $("#stafflist").empty();
+          for (var i = data.length - 1; i >= 0; i--) {
+            addStaffToList(data[i]);
           }
+          updateStaffListCount();
         });
 
-        socket.on('remove onlineStaff', function(data) {
+        socket.on('remove staff', function(data) {
           removeListStaff(data.name);
           updateStaffListCount();
         });
@@ -154,16 +146,6 @@
         function updateStaffListCount() {
           var list_count = $("#stafflist").find('tr').length;
           $("#stafflist-count").text("当前在线：" + list_count + "人");
-        }
-
-        function isStaffNameExist(data) {
-          var find = false;
-          $("#stafflist tr").each(function () {
-            if (data == $(this).find('td').text()) {
-              find = true;
-            }
-          });
-          return find;
         }
 
         //维护正在服务列表

@@ -90,10 +90,12 @@ function addUser(data) {
 
   this.emit('log', '连接成功！' + data.name + ' 欢迎登陆！');
 
-  //通过广播的形式更新index页面在线用户列表
-  this.broadcast.emit('add onlineUser', {
-    name: data.name
-  });
+  //更新index页面在线用户列表
+  var userlist = [];
+  for (var i = onlineUsers.length - 1; i >= 0; i--) {
+    userlist.unshift(onlineUsers[i].username);
+  }
+  this.broadcast.emit('update userlist', userlist);
 
 }
 
@@ -115,20 +117,21 @@ function addStaff(data) {
   };
   onlineStaffs.unshift(staff);
 
-  //通过广播的形式更新index页面在线用户列表
+  //更新index页面在线用户列表
+  var userlist = [];
   for (var i = onlineUsers.length - 1; i >= 0; i--) {
-    io.sockets.emit('add onlineUser', {
-      name: onlineUsers[i].username
-    });
+    userlist.unshift(onlineUsers[i].username);
   }
+  io.sockets.emit('update userlist', userlist);
 
-  //通过广播的形式更新index页面在线客服列表
+  //更新index页面在线客服列表
+  var stafflist = [];
   for (var i = onlineStaffs.length - 1; i >= 0; i--) {
-    io.sockets.emit('add onlineStaff', {
-      name: onlineStaffs[i].staffname
-    });
+    stafflist.unshift(onlineStaffs[i].staffname);
   }
+  io.sockets.emit('update stafflist', stafflist);
 
+  //更新index页面正在服务列表
   for (var i = services.length - 1; i >= 0; i--) {
     io.sockets.emit('add service', {
       service: services[i]
@@ -139,29 +142,25 @@ function addStaff(data) {
 
 function removeUserOrStaff(data) {
 
-  if (this.username) {
+  if (this.username) { //如果是用户退出
 
     console.log(this.username + '登出！');
-
     for (var i = onlineUsers.length - 1; i >= 0; i--) {
       if (onlineUsers[i].username == this.username)
         onlineUsers.splice(i, 1);
     }
-
-    this.broadcast.emit('remove onlineUser', {
+    this.broadcast.emit('remove user', {
       name: this.username
     });
 
   } else {
 
     console.log(this.staffname + '登出！');
-
     for (var i = onlineStaffs.length - 1; i >= 0; i--) {
       if (onlineStaffs[i].staffname == this.staffname)
         onlineStaffs.splice(i, 1);
     }
-
-    io.sockets.emit('remove onlineStaff', {
+    io.sockets.emit('remove staff', {
       name: this.staffname
     });
   }

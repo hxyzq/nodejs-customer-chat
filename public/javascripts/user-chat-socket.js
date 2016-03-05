@@ -6,7 +6,7 @@ $(function() {
   //   'force new connection': true
   // });
 
-  var userid = Math.random()*900000|0100000; //生成6位随机数
+  var userid = Math.random()*900000|0+100000; //生成6位随机数
   var username = '用户' + userid;
 
   log('正在连接服务器...');

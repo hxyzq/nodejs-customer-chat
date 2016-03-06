@@ -54,20 +54,21 @@ function server() {
 
   onlineUsers[i].isServed = true;
   onlineStaffs[j].currentserver ++;
-  var service = onlineUsers[i].username + '---->' + onlineStaffs[j].staffname;
+
+  var service = {
+    user: onlineUsers[i],
+    staff: onlineStaffs[j],
+  }
   services.unshift(service);
 
-  console.log(service + ' successed!!');
+  console.log(onlineUsers[i].username + '---->' + onlineStaffs[j].staffname + ' successed!!');
 
-  //通过广播的形式更新index页面正在服务列表
-  // for (var i = services.length - 1; i >= 0; i--) {
-  //   io.sockets.emit('add service', {
-  //     service: services[i]
-  //   });
-  // }
-  io.sockets.emit('add service', {
-    service: service
-  });
+  //更新index页面正在服务列表
+  var servicelist = [];
+  for (var i = services.length - 1; i >= 0; i--) {
+    servicelist.unshift(services[i].user.username + '---->' + services[i].staff.staffname);
+  }
+  io.sockets.emit('update servicelist', servicelist);
 
 }
 
@@ -132,11 +133,11 @@ function addStaff(data) {
   io.sockets.emit('update stafflist', stafflist);
 
   //更新index页面正在服务列表
+  var servicelist = [];
   for (var i = services.length - 1; i >= 0; i--) {
-    io.sockets.emit('add service', {
-      service: services[i]
-    });
+    servicelist.unshift(services[i].user.username + '---->' + services[i].staff.staffname);
   }
+  io.sockets.emit('update servicelist', servicelist);
 
 }
 
@@ -145,24 +146,78 @@ function removeUserOrStaff(data) {
   if (this.username) { //如果是用户退出
 
     console.log(this.username + '登出！');
+    //更新onlineUsers列表
+    var user;
     for (var i = onlineUsers.length - 1; i >= 0; i--) {
-      if (onlineUsers[i].username == this.username)
+      if (onlineUsers[i].userid == this.userid) {
+        user = onlineUsers[i];
         onlineUsers.splice(i, 1);
+      }
     }
     this.broadcast.emit('remove user', {
       name: this.username
     });
+    if (user.isServed === false) return; //如果该用户没有被服务，直接退出
+
+    //更新services列表
+    var service;
+    var tmp;
+    for (var i = services.length - 1; i >= 0; i--) {
+      if (services[i].user.userid === user.userid) {
+        tmp = services[i];
+        services.splice(i, 1);
+        service = tmp.user.username + '---->' + tmp.staff.staffname;
+      }
+    }
+    io.sockets.emit('remove service', {
+      service: service
+    });
+
+    //对应客服服务数-1
+    for (var i = onlineStaffs.length - 1; i >= 0; i--) {
+      if (onlineStaffs[i].staffid === tmp.staff.staffid) {
+        onlineStaffs[i].currentserver --;
+      }
+    }
 
   } else {
 
     console.log(this.staffname + '登出！');
+
+    //更新onlineStaffs列表
+    var staff;
     for (var i = onlineStaffs.length - 1; i >= 0; i--) {
-      if (onlineStaffs[i].staffname == this.staffname)
+      if (onlineStaffs[i].staffid === this.staffid) {
+        staff = onlineStaffs[i];
         onlineStaffs.splice(i, 1);
+      }
     }
     io.sockets.emit('remove staff', {
       name: this.staffname
     });
+
+    //更新services列表
+    for (var i = services.length - 1; i >= 0; i--) {
+
+      if (services[i].staff.staffid === staff.staffid){
+        var service = services[i].user.username + '---->' + services[i].staff.staffname;
+        updateUserServed(services[i].user.userid); //更新用户的被服务状态
+        services.splice(i, 1);
+        io.sockets.emit('remove service', {
+          service: service
+        });
+      }
+
+    }
+
   }
 
+}
+
+function updateUserServed(userid) {
+  for (var i = onlineUsers.length - 1; i >= 0; i--) {
+    if (onlineUsers[i].userid === userid) {
+        onlineUsers[i].isServed = false;
+    }
+  }
 }

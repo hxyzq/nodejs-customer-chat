@@ -149,30 +149,34 @@
         }
 
         //维护正在服务列表
-        socket.on('add service', function(data) {
-          if (isServiceExist(data.service) === false) {
-            addServiceToList(data.service);
-            updateServiceListCount();
+        socket.on('update servicelist', function(data) {
+          $("#servicelist").empty();
+          for (var i = data.length - 1; i >= 0; i--) {
+            addServiceToList(data[i]);
           }
+          updateServiceListCount();
+        });
+
+        socket.on('remove service', function(data) {
+          removeListService(data.service);
+          updateStaffListCount();
         });
 
         function addServiceToList(data) {
           $("#servicelist").append('<tr><td>' + data + '</td></tr>');
         }
 
+        function removeListService(data) {
+          $("#servicelist tr").each(function () {
+            if (data == $(this).find('td').text()) {
+              $(this).remove();
+            }
+          });
+        }
+
         function updateServiceListCount() {
           var list_count = $("#servicelist").find('tr').length;
           $("#servicelist-count").text("正在服务：" + list_count);
-        }
-
-        function isServiceExist(data) {
-          var find = false;
-          $("#servicelist tr").each(function () {
-            if (data == $(this).find('td').text()) {
-              find = true;
-            }
-          });
-          return find;
         }
 
       });

@@ -6,6 +6,7 @@
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap-switch.css">
 
     <link rel="stylesheet" href="/stylesheets/qx_chat.css">
 
@@ -66,11 +67,45 @@
       </div>
     </div>
 
+    <!-- 客服信息 -->
+    <div class="col-sm-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span class="glyphicon glyphicon-user"></span>
+          &nbsp;客服信息
+        </div>
+        <div class="panel-body">
+          <div class="col-sm-9">
+            <h5 id="staff-id">客服ID：还未登陆</h5>
+            <h5 id="staff-name">客服名称：还未登陆</h5>
+            在线：<input type="checkbox" name="my-checkbox" checked>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span class="glyphicon glyphicon-list"></span>
+          &nbsp;接入用户
+        </div>
+        <div class="panel-body">
+          <table class="table table-hover list-table" id="serveduserlist">
+            <!-- <tr> -->
+            <!-- <td>test</td> -->
+            <!-- </tr> -->
+          </table>
+        </div>
+      </div>
+    </div>
 
     <script src="/javascripts/jquery.min.js"></script>
     <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/bootstrap/js/bootstrap-switch.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+      $("[name='my-checkbox']").bootstrapSwitch('size', 'small'); //激活switch按钮控件
       $(function() {
         var socket = io();
 
@@ -80,10 +115,33 @@
         socket.on('connect', function() {
 
           socket.emit('staff login', {
-            id: staffid,
-            name: staffname
+            staffid: staffid,
+            staffname: staffname
           });
 
+        });
+
+        //更新当前客服信息
+        socket.on('update staffinfo', function(data) {
+          $("#staff-id").text("客服ID：" + data.staffid);
+          $("#staff-name").text("客服名称：" + data.staffname);
+        });
+
+        //更新接入用户
+        socket.on('add served user', function(data) {
+          //生成聊天页面的url
+          var url = 'http://localhost:3000/staff/?';
+          url += 'userid=' + data.userid + '&';
+          url += 'staffid=' + staffid;
+          $("#serveduserlist").append('<tr><td><a href="'+ url +'" target="_blank">' + data.username + '</a></td></tr>');
+        });
+        //移除接入用户
+        socket.on('remove served user', function(data) {
+          $("#serveduserlist tr").each(function () {
+            if (data.username == $(this).find('td').text()) {
+              $(this).remove();
+            }
+          });
         });
 
         //维护在线用户列表

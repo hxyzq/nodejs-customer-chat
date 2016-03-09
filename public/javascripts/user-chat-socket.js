@@ -20,7 +20,7 @@ $(function() {
 
   });
 
-  //收到服务器发来的 log
+  //收到服务器发来的log
   socket.on('log', function(msg) {
     log(msg);
   });
@@ -30,19 +30,29 @@ $(function() {
    if(13 == _event.keyCode) {
       sendMessage();
       return false;
-   }
+    }
   });
-
+  socket.on('new message', function(data) {
+    addChatMessage({
+      username: data.staffname,
+      message: data.message
+    });
+  });
 
   //各类方法
   function sendMessage() {
     var message = $("#inputMessage").val();
 
-    message = cleanInput(message);
-
-    if (!message) { //如果过滤后的内容为空
+    if (!message) { //如果内容为空
       return;
     }
+    $("#inputMessage").val('');
+
+    addChatMessage({
+      color: '#008040',
+      username: username,
+      message: message
+    });
 
     socket.emit('user message', {
       userid: userid,
@@ -50,31 +60,30 @@ $(function() {
       message: message
     });
 
-    // 有输入内容, 且已经连接成功, 且当前有客服和他匹配
-    // if (connected && linked) {
-    //   $inputMessage.val('');
-
-    //   addChatMessage({
-    //     color: '#008040',
-    //     username: username,
-    //     message: message
-    //   });
-
-    //   socket.emit('new message', {
-    //     id: userid,
-    //     message: message
-    //   });
-    // } else {
-    //   log(connected ? ( //连接成功, 但还没有 匹配成功
-    //     isKF ? '还没有访客接入, 不能发送消息 ...' : '客服忙, 请稍等 ...'
-    //   ) : '正在连接服务器...'); //未连接成功时的提示文字
-    // }
   }
-  function cleanInput(text) {
-    return $('<div/>').text(text).text();
-  }
+  // Log a message
   function log(message) {
     addMessageElement($('<li>').addClass('log').text(message));
+  }
+  // Adds the visual chat message to the message list
+  function addChatMessage (data) {
+    var $usernameDiv = $('<span class="username"/>').text(data.username).css('color', data.color || '#00f');
+    var $messageBodyDiv = $('<span class="messageBody">').text(data.message);
+    var $messageDiv = $('<li class="message"/>')
+      .data('username', data.username)
+      .append($usernameDiv, formatDate(new Date()) + '<br/>', $messageBodyDiv);
+
+    addMessageElement($messageDiv);
+  }
+  //时间格式化
+  function formatDate(t){
+    var M = t.getMonth() + 1,
+      D = t.getDate(),
+      H = t.getHours(),
+      m = t.getMinutes(),
+      s = t.getSeconds();
+
+    return [M, '-', D, ' ', H, ':', m, ':', s].join('');
   }
   function addMessageElement(el) {
     $('#messages').append($(el).hide().fadeIn(200));

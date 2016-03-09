@@ -28,7 +28,6 @@ exports.listen = function(server) {
   return io.listen(server);
 };
 
-
 //各类方法
 function server() {
   var user;
@@ -80,6 +79,9 @@ function chatServer(data) {
 
   var staffid = data.staffid;
   var userid = data.userid;
+
+  //保存当前客服聊天的socket到services列表中
+  services[userid].staffsocket = this;
 
   //向客服发送开始服务log
   this.emit('log', '开始服务： ' + onlineUsers[userid].username);
@@ -235,23 +237,35 @@ function updateServiceList(data) {
 
 
 function emitToStaff(data) {
-  console.log(data.username + ': ' + data.message);
+  console.log(getCurTime() + data.username + ': ' + data.message);
 
-  //获取用户和客服
-  var i;
-  for (i = services.length - 1; i >= 0; i--) {
-    if (services[i].user.userid == data.userid) {
-      break;
-    }
-  }
-  services[i].staff.socket.emit('new message', {
-    userid: services[i].user.userid,
-    username: services[i].user.username,
+  var staffid = services[data.userid].staffid;
+  services[data.userid].staffsocket.emit('new message', {
+    userid: data.userid,
+    username: data.username,
     message: data.message
   });
 
 }
 
 function emitToUser(data) {
+  console.log(getCurTime() + data.staffname + ': ' + data.message);
 
+  var userid = data.userid;
+  onlineUsers[userid].socket.emit('new message', {
+    staffid: data.staffid,
+    staffname: data.staffname,
+    message: data.message
+  });
+}
+
+function getCurTime(){
+  var t = new Date(),
+    M = t.getMonth() + 1,
+    D = t.getDate(),
+    H = t.getHours(),
+    m = t.getMinutes(),
+    s = t.getSeconds();
+
+  return ['[', M, '-', D, ' ', H, ':', m, ':', s, ']'].join('');
 }

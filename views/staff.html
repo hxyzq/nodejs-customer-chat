@@ -42,20 +42,55 @@
 
       });
 
+      //收到服务器发来的log
       socket.on('log', function(msg) {
         log(msg);
       });
 
+      //inputMessage检测回车发送消息
+      $('#inputMessage').keydown(function(_event) {
+        if(13 == _event.keyCode) {
+          sendMessage();
+          return false;
+        }
+      });
+
       socket.on('new message', function(data) {
-        addChatMessage(data.message);
+        addChatMessage({
+          username: data.username,
+          message: data.message
+        });
       });
 
       //各类方法
+      function sendMessage() {
+        var message = $("#inputMessage").val();
+
+        if (!message) { //如果内容为空
+          return;
+        }
+        $("#inputMessage").val('');
+
+        addChatMessage({
+          color: '#008040',
+          username: '客服' + staffid,
+          message: message
+        });
+
+        socket.emit('staff message', {
+          staffid: staffid,
+          staffname: '客服' + staffid,
+          userid: userid,
+          message: message
+        });
+
+      }
+      // Log a message
       function log(message) {
         addMessageElement($('<li>').addClass('log').text(message));
       }
       // Adds the visual chat message to the message list
-      function addChatMessage(data) {
+      function addChatMessage (data) {
         var $usernameDiv = $('<span class="username"/>').text(data.username).css('color', data.color || '#00f');
         var $messageBodyDiv = $('<span class="messageBody">').text(data.message);
         var $messageDiv = $('<li class="message"/>')
@@ -65,10 +100,6 @@
         addMessageElement($messageDiv);
       }
 
-      function addMessageElement(el) {
-        $('#messages').append($(el).hide().fadeIn(200));
-        $('#messages')[0].scrollTop = $('#messages')[0].scrollHeight;
-      }
       //时间格式化
       function formatDate(t) {
         var M = t.getMonth() + 1,
@@ -78,6 +109,10 @@
         s = t.getSeconds();
 
         return [M, '-', D, ' ', H, ':', m, ':', s].join('');
+      }
+      function addMessageElement(el) {
+        $('#messages').append($(el).hide().fadeIn(200));
+        $('#messages')[0].scrollTop = $('#messages')[0].scrollHeight;
       }
 
       /*

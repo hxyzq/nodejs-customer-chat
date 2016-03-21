@@ -1,0 +1,287 @@
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <h1>
+      会话
+      <small>当前正在接待的会话</small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+      <li class="active">Here</li>
+    </ol>
+  </section>
+
+  <!-- Main content -->
+  <section class="content">
+
+    <div class="row">
+
+        <div class="col-md-2">
+
+
+              <div class="tabbable">
+                <ul class="nav nav-tabs">
+                  <li class="active" style="width: 50%;text-align: center;"><a href="#tab1" data-toggle="tab">进行中</a></li>
+                  <li style="width: 50%;text-align: center;"><a href="#tab2" data-toggle="tab">客服同事</a></li>
+                </ul>
+                <div class="tab-content">
+                  <div class="tab-pane fade in active" id="tab1">
+
+                    <div class="list-group">
+                      <!-- <a href="#" class="list-group-item">用户xxxx</a> -->
+                    </div>
+
+                  </div>
+                  <div class="tab-pane fade" id="tab2">
+                    <h4 style="text-align: center;">无数据</h4>
+                  </div>
+                </div>
+              </div>
+
+        </div>
+        <div class="col-md-8">
+
+        </div>
+
+     </div>
+
+
+  </section><!-- /.content -->
+</div><!-- /.content-wrapper -->
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="javascripts/ejs.js"></script>
+<script>
+
+  var socket = io();
+
+  var staffid = Math.random()*900000|0+100000; //生成6位随机数
+  var staffname = '客服' + staffid;
+
+  socket.on('connect', function() {
+
+    socket.emit('staff login', {
+      staffid: staffid,
+      staffname: staffname
+    });
+
+  });
+
+  //更新当前客服信息
+  socket.on('update staffinfo', function(data) {
+    $("#staffname").text(data.staffname);
+  });
+
+  //更新接入用户
+  socket.on('add served user', function(data) {
+    //增加会话列表
+    $(".list-group").append('<a href="#" class="list-group-item" style="text-align: center;" id="' + 'userlist' + data.userid + '" onclick="boxCollapse('+ data.userid +')">' + data.username + '</a>');
+    //增加聊天窗口
+    addChatBox(data);
+  });
+  //移除接入用户
+  socket.on('remove served user', function(data) {
+    log(data.username + '已经退出了聊天', data.userid);
+    $("#serveduserlist tr").each(function () {
+      if (data.username == $(this).find('td').text()) {
+        $(this).remove();
+      }
+    });
+  });
+  //收到用户发来消息
+  socket.on('new message', function(data) {
+    addUserMessage(data);
+  });
+
+  //维护在线用户列表
+  socket.on('update userlist', function(data) {
+    $("#userlist").empty();
+    for (var i = data.length - 1; i >= 0; i--) {
+      addUserToList(data[i]);
+    }
+    updateUserListCount();
+  });
+
+  socket.on('remove user', function(data) {
+    removeListUser(data.name);
+    updateUserListCount();
+  });
+
+  //维护在线客服列表
+  socket.on('update stafflist', function(data) {
+    $("#stafflist").empty();
+    for (var i = data.length - 1; i >= 0; i--) {
+      addStaffToList(data[i]);
+    }
+    updateStaffListCount();
+  });
+
+  socket.on('remove staff', function(data) {
+    removeListStaff(data.name);
+    updateStaffListCount();
+  });
+  //inputMessage检测回车并绑定到send按钮的click事件
+  function inputMessageEnter(event, userid) {
+    if (event.code === 'Enter' || event.code === 'NumpadEnter') {
+      $("#" + userid).click();
+    }
+  }
+  function sendMessage(obj) {
+    //获取send按钮所在chatBox的message
+    var message = obj.parentNode.parentNode.firstChild.value;
+    if (message == '') return;
+    obj.parentNode.parentNode.firstChild.value = "";
+
+    //从send按钮获取userid和username
+    var userid = obj.getAttribute("id");
+    var username = obj.getAttribute("name");
+
+    addStaffMessage({
+      userid: userid,
+      username: username,
+      message: message
+    });
+
+    socket.emit('staff message', {
+      staffid: staffid,
+      staffname: staffname,
+      userid: userid,
+      message: message
+    });
+  }
+
+  //维护正在服务列表
+  socket.on('update servicelist', function(data) {
+    $("#servicelist").empty();
+    for (var i = data.length - 1; i >= 0; i--) {
+      addServiceToList(data[i]);
+    }
+    updateServiceListCount();
+  });
+
+  socket.on('remove service', function(data) {
+    removeListService(data.service);
+    updateStaffListCount();
+  });
+
+  function addUserToList(data) {
+    $("#userlist").append('<tr><td>' + data + '</td></tr>');
+  }
+
+  function removeListUser(data) {
+    $("#userlist tr").each(function () {
+      if (data == $(this).find('td').text()) {
+        $(this).remove();
+      }
+    });
+  }
+
+  function updateUserListCount() {
+    var list_count = $("#userlist").find('tr').length;
+    $("#userlist-count").text("当前在线：" + list_count + "人");
+  }
+
+  function addStaffToList(data) {
+    $("#stafflist").append('<tr><td>' + data + '</td></tr>');
+  }
+
+  function removeListStaff(data) {
+    $("#stafflist tr").each(function () {
+      if (data == $(this).find('td').text()) {
+        $(this).remove();
+      }
+    });
+  }
+
+  function updateStaffListCount() {
+    var list_count = $("#stafflist").find('tr').length;
+    $("#stafflist-count").text("当前在线：" + list_count + "人");
+  }
+
+  function addServiceToList(data) {
+    $("#servicelist").append('<tr><td>' + data + '</td></tr>');
+  }
+
+  function removeListService(data) {
+    $("#servicelist tr").each(function () {
+      if (data == $(this).find('td').text()) {
+        $(this).remove();
+      }
+    });
+  }
+
+  function updateServiceListCount() {
+    var list_count = $("#servicelist").find('tr').length;
+    $("#servicelist-count").text("正在服务：" + list_count);
+  }
+
+  function addChatBox(data) {
+    var chatBox = '<div class="box box-default direct-chat direct-chat-primary"><div class="box-header"><h3 class="box-title">' + '会话来自：' + data.username + '</h3><div class="box-tools pull-right"><span data-toggle="tooltip" title="3 New Messages" class="badge bg-light-blue">3</span><button class="btn btn-box-tool" data-widget="collapse" id="' + 'collapse' + data.userid + '"><i class="fa fa-minus"></i></button><button class="btn btn-box-tool" data-widget="remove" id="' + 'remove' + data.userid + '" onclick="boxRemove(' + data.userid + ')"><i class="fa fa-times"></i></button></div></div><div class="box-body"><div class="direct-chat-messages" id="' + 'chatMessages' + data.userid + '"></div><div class="box-footer"><div class="input-group"><input type="text" name="message" placeholder="请输入您的的消息" class="form-control" id="inputMessage" onkeydown="inputMessageEnter(event, ' + data.userid + ')"><span class="input-group-btn"><button type="button" class="btn btn-primary btn-flat" onclick="sendMessage(this)" id="' + data.userid + '" name="' + data.username + '">发送</button></span></div></div></div>';
+    //将userid和username赋值给button的id和name属性，以便发送消息给相应用户
+    $(".col-md-8").append(chatBox);
+    //显示开始服务log
+    log('开始服务：' + data.username, data.userid);
+    //发送问候信息
+    addStaffMessage({
+      userid: data.userid,
+      username: data.username,
+      message: '您好，有什么可以帮助您的吗？'
+    });
+    socket.emit('staff message', {
+      staffid: staffid,
+      staffname: staffname,
+      userid: data.userid,
+      message: '您好，有什么可以帮助您的吗？'
+    });
+  }
+
+  function addUserMessage(data) {
+    $("#" + 'chatMessages' + data.userid).append(
+      '<div class="direct-chat-msg"><div class="direct-chat-info clearfix"><span class="direct-chat-name pull-left">' + data.username +
+      '</span><span class="direct-chat-timestamp pull-left">' + '</span><span class="direct-chat-timestamp pull-right">' + getCurTime() +
+      '</span></div>' + '<img class="direct-chat-img" src="../images/user1-128x128.jpg" alt="message user image"><div class="direct-chat-text" style="float: left;margin-left: 10px;max-width: 90%;">' + data.message +
+      '</div></div>'
+      );
+    //滚动聊天栏到最底部
+    var height = $("#" + 'chatMessages' + data.userid).prop("scrollHeight");
+    $("#" + 'chatMessages' + data.userid).prop('scrollTop', height);
+  }
+
+  function addStaffMessage(data) {
+    $("#" + 'chatMessages' + data.userid).append(
+      '<div class="direct-chat-msg right"><div class="direct-chat-info clearfix"><span class="direct-chat-name pull-right">' + staffname +
+      '</span><span class="direct-chat-timestamp pull-left">' + '</span><span class="direct-chat-timestamp pull-left">' + getCurTime() +
+      '</span></div>' + '<img class="direct-chat-img" src="../images/staff1-128x128.jpg" alt="message user image"><div class="direct-chat-text" style="float: right;margin-right: 10px;max-width: 90%;">' + data.message +
+      '</div></div>'
+    );
+     //滚动聊天栏到最底部
+    var height = $("#" + 'chatMessages' + data.userid).prop("scrollHeight");
+    $("#" + 'chatMessages' + data.userid).prop('scrollTop', height);
+  }
+  function log(message, userid) {
+    $("#" + 'chatMessages' + userid).append(
+      '<p class="direct-chat-timestamp small" style="text-align: center;">' + message + '</p>'
+    );
+  }
+  function getCurTime(){
+    var t = new Date(),
+    M = t.getMonth() + 1,
+    D = t.getDate(),
+    H = t.getHours(),
+    m = t.getMinutes(),
+    s = t.getSeconds();
+    return [M, '-', D, ' ', H, ':', m, ':', s].join('');
+  }
+  //chatBox折叠
+  function boxCollapse(userid) {
+    $("#" + 'collapse' + userid).click();
+  }
+  //chatBox关闭
+  function boxRemove(userid) {
+    //对应会话列表删除
+    $("#" + 'userlist' + userid).remove();
+  }
+
+</script>
+

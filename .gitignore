@@ -38,3 +38,5 @@ jspm_packages
 .tags_sorted_by_file
 
 test.js
+test.ejs
+.idea

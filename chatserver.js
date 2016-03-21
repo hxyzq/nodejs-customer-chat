@@ -14,6 +14,8 @@ io.on('connection', function(socket) {
 
   socket.on('staff login', addStaff);
 
+  socket.on('admin login', adminServer);
+
   socket.on('disconnect', removeUserOrStaff);
 
   socket.on('chat server', chatServer);
@@ -62,6 +64,8 @@ function server() {
     userid: onlineUsers[user.userid].userid,
     username: onlineUsers[user.userid].username
   });
+  //向用户发送分配客服成功log
+  onlineUsers[user.userid].socket.emit('log', onlineStaffs[staffid].staffname + '正在为您服务');
 
   console.log(user.username + '---->' + staff.staffname + ' successed!!');
 
@@ -87,7 +91,6 @@ function chatServer(data) {
   this.emit('log', '开始服务： ' + onlineUsers[userid].username);
   //向用户发送分配客服成功log
   onlineUsers[userid].socket.emit('log', onlineStaffs[staffid].staffname + '正在为您服务');
-
 }
 
 function addUser(data) {
@@ -107,6 +110,7 @@ function addUser(data) {
   };
 
   this.emit('log', '连接成功！' + data.username + ' 欢迎登陆！');
+  this.emit('log', '正在为您分配客服，请稍等...');
 
   //更新在线用户列表
   updateUserList();
@@ -240,13 +244,20 @@ function emitToStaff(data) {
   console.log(getCurTime() + data.username + ': ' + data.message);
 
   var staffid = services[data.userid].staffid;
-  services[data.userid].staffsocket.emit('new message', {
+  // services[data.userid].staffsocket.emit('new message', {
+  //   userid: data.userid,
+  //   username: data.username,
+  //   message: data.message
+  // });
+
+  onlineStaffs[staffid].socket.emit('new message', {
     userid: data.userid,
     username: data.username,
     message: data.message
   });
 
 }
+
 
 function emitToUser(data) {
   console.log(getCurTime() + data.staffname + ': ' + data.message);
@@ -268,4 +279,35 @@ function getCurTime(){
     s = t.getSeconds();
 
   return ['[', M, '-', D, ' ', H, ':', m, ':', s, ']'].join('');
+}
+//管理系统查看页面服务
+function adminServer(data) {
+
+  // //将客服名和id存入socket
+  // this.staffid = data.staffid;
+  // this.staffname = data.staffname;
+
+  console.log(data.adminname + '登入！');
+
+  // onlineStaffs[data.staffid] = {
+  //   staffid: data.staffid,
+  //   staffname: data.staffname,
+  //   maxserver: 5,
+  //   currentserver: 0,
+  //   socket: this
+  // };
+
+  //更新在线用户列表
+  updateUserList();
+  //更新在线客服列表
+  updateStaffList();
+  //更新正在服务列表
+  updateServiceList();
+
+  //更新index页面客服信息
+  // this.emit('update staffinfo',{
+  //   staffid: data.staffid,
+  //   staffname: data.staffname
+  // });
+
 }

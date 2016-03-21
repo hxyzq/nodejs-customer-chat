@@ -24,11 +24,25 @@ $(function() {
   //收到服务器发来的log
   socket.on('log', function(msg) {
     log(msg);
+    //收到服务器的开始服务log后向用户发送问候语
+    if (msg.indexOf('开始服务') > -1) {
+      addChatMessage({
+        color: '#008040',
+        username: '客服' + staffid,
+        message: '您好,请问有什么可以帮助您的？'
+      });
+      socket.emit('staff message', {
+        staffid: staffid,
+        staffname: '客服' + staffid,
+        userid: userid,
+        message: '您好,请问有什么可以帮助您的？'
+      });
+    }
   });
 
   //inputMessage检测回车发送消息
-  $('#inputMessage').keydown(function(_event) {
-    if(13 == _event.keyCode) {
+  $('#inputMessage').keydown(function(event) {
+    if(13 == event.keyCode) {
       sendMessage();
       return false;
     }

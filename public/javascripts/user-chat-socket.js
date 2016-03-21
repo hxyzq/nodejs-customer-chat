@@ -26,8 +26,8 @@ $(function() {
   });
 
   //inputMessage检测回车发送消息
-  $('#inputMessage').keydown(function(_event) {
-   if(13 == _event.keyCode) {
+  $('#inputMessage').keydown(function(event) {
+   if(13 == event.keyCode) {
       sendMessage();
       return false;
     }

@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 
-var site = require('../controllers/site');
 var sign = require('../controllers/sign');
 
 // 加载首页

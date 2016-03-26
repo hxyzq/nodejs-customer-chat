@@ -157,13 +157,13 @@ function removeUserOrStaff(data) {
     delete onlineUsers[this.userid];
     updateUserList();
 
+    if (user.isServed === false) return; //如果该用户没有被服务，直接退出
+
     //移除接入用户
     onlineStaffs[services[user.userid].staffid].socket.emit('remove served user', {
       userid: user.userid,
       username: user.username
     });
-
-    if (user.isServed === false) return; //如果该用户没有被服务，直接退出
 
     //对应客服服务数-1
     onlineStaffs[services[user.userid].staffid].currentserver --;
@@ -172,7 +172,7 @@ function removeUserOrStaff(data) {
     delete services[user.userid];
     updateServiceList();
 
-  } else if (this.staffname) {
+  } else if (this.staffname) { //如果是客服退出
 
     console.log(this.staffname + '登出！');
 

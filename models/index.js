@@ -3,13 +3,12 @@
 var fs        = require("fs");
 var path      = require("path");
 var Sequelize = require("sequelize");
-// var env       = process.env.NODE_ENV || "development";
-// var config    = require(path.join(__dirname, '..', 'config', 'config.json'))[env];
 var db        = {};
+var config    = require('../config');
 
 // var sequelize = new Sequelize(config.database, config.username, config.password, config);
-var sequelize = new Sequelize('fashion_development', 'root_dev', 'fashion123', {
-  host: '139.196.184.225',
+var sequelize = new Sequelize(config.db.database, config.db.username, config.db.password, {
+  host: config.db.host,
   dialect: 'mysql',
 });
 

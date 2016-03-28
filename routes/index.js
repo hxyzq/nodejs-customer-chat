@@ -2,42 +2,21 @@ var express = require('express');
 var router = express.Router();
 
 var sign = require('../controllers/sign');
+var staff = require('../controllers/staff');
 
-// 加载首页
-router.get('/', function(req, res, next) {
-  // req.session.uid = Date.now();
-  // console.log(req.session);
-  res.render('chat');
-});
+var auth = require('../middlewares/auth');
 
 router.get('/login', sign.showLogin);  // 进入登录页面.
 router.post('/login', sign.login);  // 登录校验
+router.get('/logout', sign.logout) //登出
 
+router.get('/', auth.staffRequired, staff.showChat); //首页
+router.get('/chat', auth.staffRequired, staff.showChat); //客服聊天页面
+router.get('/wait', auth.staffRequired, staff.showWait); //客服待接入页面
+router.get('/history', auth.staffRequired, staff.showHistory); //客服历史聊天页面
+router.get('/profile', auth.staffRequired, staff.showProfile); //客服个人信息页面
 
-router.get('/chat', function(req, res, next) {
-  console.log(req.session);
-  res.render('chat');
-});
-
-router.get('/wait', function(req, res, next) {
-  console.log(req.session);
-  res.render('wait');
-});
-
-router.get('/history', function(req, res, next) {
-  res.render('history');
-});
-
-router.get('/profile', function(req, res, next) {
-  res.render('profile');
-});
-
-
-router.get('/staff', function (req, res, next) {
-  res.render('staff');
-});
-
-router.get('/index', function (req, res, next) {
+router.get('/index', auth.staffRequired, function (req, res, next) {
   res.render('index2');
 });
 

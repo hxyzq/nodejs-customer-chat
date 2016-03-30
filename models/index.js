@@ -10,6 +10,7 @@ var config    = require('../config');
 var sequelize = new Sequelize(config.db.database, config.db.username, config.db.password, {
   host: config.db.host,
   dialect: 'mysql',
+  timezone : '+08:00' // set timezone if not timestamp delay 8 hours
 });
 
 fs

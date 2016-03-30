@@ -15,6 +15,8 @@ router.get('/chat', auth.staffRequired, staff.showChat); //客服聊天页面
 router.get('/wait', auth.staffRequired, staff.showWait); //客服待接入页面
 router.get('/history', auth.staffRequired, staff.showHistory); //客服历史聊天页面
 router.get('/profile', auth.staffRequired, staff.showProfile); //客服个人信息页面
+router.post('/profile', auth.staffRequired, staff.setProfile); //提交个人信息
+
 
 router.get('/index', auth.staffRequired, function (req, res, next) {
   res.render('index2');

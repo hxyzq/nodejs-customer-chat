@@ -55,9 +55,9 @@
 <script>
 
   var socket = io();
-
-  var staffid = Math.random()*900000|0+100000; //生成6位随机数
-  var staffname = '客服' + staffid;
+  // 获取服务器传递过来的staffid和staffname
+  var staffid = '<%= staffid %>';
+  var staffname = '<%= staffname %>';
 
   socket.on('connect', function() {
 
@@ -67,11 +67,6 @@
     });
 
   });
-
-  // //更新当前客服信息
-  // socket.on('update staffinfo', function(data) {
-  //   $("#staffname").text(data.staffname);
-  // });
 
   //更新接入用户
   socket.on('add served user', function(data) {

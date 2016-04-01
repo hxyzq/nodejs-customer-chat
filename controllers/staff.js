@@ -1,6 +1,8 @@
 var config = require('../config');
 var models  = require('../models');
 
+var crypto = require('crypto'); //md5 require
+
 // show staff chat page
 exports.showChat = function(req, res, next) {
   res.render('chat', {
@@ -37,11 +39,25 @@ exports.showProfile = function(req, res, next) {
         account_info_id: req.session.staffid
       }
   }).then(function(user) {
+    var message = {};
+    if (req.query.save === 'success') {
+      message.success = '保存成功';
+    }
+    if (req.query.save === 'fail') {
+      message.error = '保存失败'
+    }
+    if (req.query.changepass === 'success') {
+      message.changepasssucc = '密码已修改';
+    }
+    if (req.query.changepass == 'fail') {
+      message.changepasserr = '当前密码错误';
+    }
 
     res.render('profile', {
       title    : config.name,
       staffid  : req.session.staffid,
       staffname: req.session.staffname,
+      message  : message,
       staff: {
         realname   : user.dataValues.real_name,
         telephone  : user.dataValues.telephone,
@@ -75,11 +91,46 @@ exports.setProfile = function(req, res, next) {
         account_info_id: req.session.staffid
       }
     }).then(function(result) {
-      // console.log('result' + ' ' + result);
-      res.redirect('/profile?save=success');
+      if (result) {
+        res.redirect('/profile?save=success');
+      } else {
+        res.redirect('/profile?save=fail');
+      }
     });
   }
   if (action === 'change_password') {
+    var oldpassword = req.body.oldpassword;
+    var newpassword = req.body.newpassword;
+    // 根据staffid查account_info表获取password
+    models.AccountInfo.findOne({
+        attributes: ['password'],
+        where: {
+          id: req.session.staffid
+        }
+    }).then(function(user) {
+      console.log(user.dataValues);
+      //md5
+      var md5 = crypto.createHash('md5');
+      oldpassword = md5.update(oldpassword).digest('hex');
+
+      if (oldpassword !== user.dataValues.password) {
+        res.redirect('/profile?changepass=fail');
+      } else {
+        var md5 = crypto.createHash('md5');
+        newpassword = md5.update(newpassword).digest('hex');
+        // 更新account_info表的password
+        models.AccountInfo.update({
+          password: newpassword
+        }, {
+          where: {
+            id: req.session.staffid
+          }
+        }).then(function() {
+          res.redirect('/profile?changepass=success');
+        });
+      }
+
+    });
 
   }
 

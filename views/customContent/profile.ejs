@@ -20,17 +20,38 @@
 
         <div class="box box-info widget-user-2">
 
-          <div class="widget-user-header">
-            <div class="widget-user-image">
+          <div class="box-header">
+            <div class="col-sm-2 block">
               <img class="img-circle" src="./images/staff1-128x128.jpg" alt="User Avatar">
             </div>
-            <h3 class="widget-user-username"><%= staff.realname ? staff.realname : staffname %></h3>
-            <h5 class="widget-user-desc"><small>在线客服</small></h5>
+            <div class="col-sm-2">
+              <h3><%= staff.realname ? staff.realname : staffname %></h3>
+              <h5><small>在线客服</small></h5>
+              <button class="btn btn-info">更换头像</button>
+            </div>
+
+
           </div>
-
-
           <div class="box-body">
             <form id="profile_form" class="form-horizontal" action="/profile" method="post">
+
+            <!-- alert message -->
+            <div class="col-sm-12">
+              <div class="col-sm-2"></div>
+              <% if(typeof(message.success) !== 'undefined' && message.success){ %>
+              <div class="alert alert-success col-sm-4">
+                <a class="close" data-dismiss="alert" href="#">&times;</a>
+                <strong><%= message.success %></strong>
+              </div>
+              <% } %>
+              <% if(typeof(message.error) !== 'undefined' && message.error){ %>
+              <div class="alert alert-error col-sm-4">
+                <a class="close" data-dismiss="alert" href="#">&times;</a>
+                <strong><%= message.error %></strong>
+              </div>
+              <% } %>
+            </div>
+
               <div class="form-group">
                 <label for="staffname" class="col-sm-2 control-label">注册名</label>
                 <div class="col-sm-4">
@@ -75,7 +96,6 @@
               </div>
             </form>
           </div>
-
           <!-- <div class="box-footer">
           </div> -->
 
@@ -86,22 +106,34 @@
 
             <div class="box-body">
               <form id="password_form" class="form-horizontal" action="/profile" method="post">
+
+              <!-- alert message -->
+              <div class="col-sm-12">
+                <div class="col-sm-2"></div>
+                <% if(typeof(message.changepasssucc) !== 'undefined' && message.changepasssucc){ %>
+                <div class="alert alert-success col-sm-4">
+                  <a class="close" data-dismiss="alert" href="#">&times;</a>
+                  <strong><%= message.changepasssucc %></strong>
+                </div>
+                <% } %>
+                <% if(typeof(message.changepasserr) !== 'undefined' && message.changepasserr){ %>
+                <div class="alert alert-error col-sm-4">
+                  <a class="close" data-dismiss="alert" href="#">&times;</a>
+                  <strong><%= message.changepasserr %></strong>
+                </div>
+                <% } %>
+              </div>
+
                 <div class="form-group">
-                  <label for="oldpass" class="col-sm-2 control-label">当前密码</label>
+                  <label for="oldpassword" class="col-sm-2 control-label">当前密码</label>
                   <div class="col-sm-4">
-                    <input type="password" class="form-control" id="oldpass" name="oldpass">
+                    <input type="password" class="form-control" id="oldpassword" name="oldpassword">
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="newpass" class="col-sm-2 control-label">新密码</label>
+                  <label for="newpassword" class="col-sm-2 control-label">新密码</label>
                   <div class="col-sm-4">
-                    <input type="password" class="form-control" id="newpass" name="newpass">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="confirmpass" class="col-sm-2 control-label">确认密码</label>
-                  <div class="col-sm-4">
-                    <input type="password" class="form-control" id="confirmpass" name="confirmpass">
+                    <input type="password" class="form-control" id="newpassword" name="newpassword">
                   </div>
                 </div>
                 <input type='hidden' id='action' name='action' value='change_password'/>

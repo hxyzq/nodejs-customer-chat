@@ -1,3 +1,5 @@
+var models  = require('./models');
+
 var io = require('socket.io')();
 
 var onlineUsers = {}; //在线用户列表
@@ -12,13 +14,13 @@ io.on('connection', function(socket) {
 
   socket.on('user login', addUser);
 
+  socket.on('disconnect', removeUser);
+
   socket.on('staff login', addStaff);
 
   socket.on('staff logout', removeStaff);
 
   socket.on('admin login', adminServer);
-
-  socket.on('disconnect', removeUserOrStaff);
 
   socket.on('chat server', chatServer);
 
@@ -56,8 +58,18 @@ function server() {
   onlineUsers[user.userid].isServed = true;
   onlineStaffs[staff.staffid].currentserver ++;
 
+  //callcent_event表插入服务开始记录
+  var id = Math.round(new Date().getTime()/1000); // 服务事件id
+  models.CallCenterEvent.create({
+      id        : id,
+      user_id   : user.userid,
+      staff_id  : staff.staffid,
+      start_time: new Date(),
+  });
+
   services[user.userid] = {
-    userid: userid,
+    id     : id,
+    userid : userid,
     staffid: staffid
   };
 
@@ -158,7 +170,7 @@ function addStaff(data) {
 
 }
 
-function removeUserOrStaff(data) {
+function removeUser(data) {
 
   if (this.username) { //如果是用户退出
 
@@ -179,6 +191,16 @@ function removeUserOrStaff(data) {
     //对应客服服务数-1
     onlineStaffs[services[user.userid].staffid].currentserver --;
     updateStaffList();
+
+    // callcent_event表插入服务结束记录
+    models.CallCenterEvent.update({
+      end_time: new Date()
+    }, {
+      where: {
+        id: services[user.userid].id
+      }
+    });
+
     //更新services列表
     delete services[user.userid];
     updateServiceList();
@@ -269,17 +291,32 @@ function emitToStaff(data) {
     message: data.message
   });
 
+  // callcenter_content表中插入消息内容记录
+  models.CallCenterContent.create({
+      CallCenterEventId: services[data.userid].id,
+      speak_time       : new Date(),
+      speaker          : 0,
+      content           : data.message
+  });
+
 }
 
 
 function emitToUser(data) {
   console.log(getCurTime() + data.staffname + ': ' + data.message);
 
-  var userid = data.userid;
-  onlineUsers[userid].socket.emit('new message', {
+  onlineUsers[data.userid].socket.emit('new message', {
     staffid: data.staffid,
     staffname: data.staffname,
     message: data.message
+  });
+
+  // callcenter_content表中插入消息内容记录
+  models.CallCenterContent.create({
+      CallCenterEventId: services[data.userid].id,
+      speak_time       : new Date(),
+      speaker          : 1,
+      content           : data.message
   });
 }
 

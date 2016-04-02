@@ -14,6 +14,8 @@ io.on('connection', function(socket) {
 
   socket.on('staff login', addStaff);
 
+  socket.on('staff logout', removeStaff);
+
   socket.on('admin login', adminServer);
 
   socket.on('disconnect', removeUserOrStaff);
@@ -117,33 +119,42 @@ function addUser(data) {
 }
 
 function addStaff(data) {
+  // 如果客服不存在 新增一个客服
+  if (onlineStaffs[data.staffid] === undefined) {
+    //将客服名和id存入socket
+    this.staffid = data.staffid;
+    this.staffname = data.staffname;
 
-  //将客服名和id存入socket
-  this.staffid = data.staffid;
-  this.staffname = data.staffname;
+    console.log(data.staffname + '登入！');
 
-  console.log(data.staffname + '登入！');
+    onlineStaffs[data.staffid] = {
+      staffid: data.staffid,
+      staffname: data.staffname,
+      maxserver: 2,
+      currentserver: 0,
+      socket: this
+    };
 
-  onlineStaffs[data.staffid] = {
-    staffid: data.staffid,
-    staffname: data.staffname,
-    maxserver: 2,
-    currentserver: 0,
-    socket: this
-  };
+    //更新在线用户列表
+    updateUserList();
+    //更新在线客服列表
+    updateStaffList();
+    //更新正在服务列表
+    updateServiceList();
 
-  //更新在线用户列表
-  updateUserList();
-  //更新在线客服列表
-  updateStaffList();
-  //更新正在服务列表
-  updateServiceList();
+  } else {
+  // 客服重连 更新socket add chatbox
+    onlineStaffs[data.staffid].socket = this;
+    for (userid in services) {
+      if (services[userid].staffid === data.staffid) {
+        onlineStaffs[data.staffid].socket.emit('add served user', {
+          userid: onlineUsers[userid].userid,
+          username: onlineUsers[userid].username
+        });
+      }
+    }
 
-  //更新index页面客服信息
-  this.emit('update staffinfo',{
-    staffid: data.staffid,
-    staffname: data.staffname
-  });
+  }
 
 }
 
@@ -172,33 +183,35 @@ function removeUserOrStaff(data) {
     delete services[user.userid];
     updateServiceList();
 
-  } else if (this.staffname) { //如果是客服退出
-
-    console.log(this.staffname + '登出！');
-
-    var staff = onlineStaffs[this.staffid];
-    // if (staff.currentserver === 0) return; //如果该客服没有正在服务直接退出
-
-    //更新用户的被服务状态
-    for (userid in services) {
-      if (services[userid].staffid == staff.staffid) {
-        onlineUsers[services[userid].userid].isServed = false;
-        updateUserList();
-      }
-    }
-    //更新services列表
-    for (userid in services) {
-      if (services[userid].staffid == staff.staffid) {
-        delete services[userid];
-        updateServiceList();
-      }
-    }
-
-    //更新onlineStaffs列表(这一步必须最后进行)
-    delete onlineStaffs[staff.staffid];
-    updateStaffList();
-
   }
+
+}
+
+function removeStaff(data) {
+
+  console.log(data.staffname + '登出！');
+
+  var staff = onlineStaffs[data.staffid];
+  if (staff === undefined) return;
+
+  //更新用户的被服务状态
+  for (userid in services) {
+    if (services[userid].staffid == staff.staffid) {
+      onlineUsers[services[userid].userid].isServed = false;
+      updateUserList();
+    }
+  }
+  //更新services列表
+  for (userid in services) {
+    if (services[userid].staffid == staff.staffid) {
+      delete services[userid];
+      updateServiceList();
+    }
+  }
+
+  //更新onlineStaffs列表(这一步必须最后进行)
+  delete onlineStaffs[staff.staffid];
+  updateStaffList();
 
 }
 

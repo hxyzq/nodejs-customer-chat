@@ -21,10 +21,10 @@
         <div class="box box-info widget-user-2">
 
           <div class="box-header">
-            <div class="col-sm-2 block">
+            <div class="col-md-2 block">
               <img class="img-circle" src="./images/staff1-128x128.jpg" alt="User Avatar">
             </div>
-            <div class="col-sm-2">
+            <div class="col-md-2">
               <h3><%= staff.realname ? staff.realname : staffname %></h3>
               <h5><small>在线客服</small></h5>
               <button class="btn btn-info">更换头像</button>
@@ -36,16 +36,16 @@
             <form id="profile_form" class="form-horizontal" action="/profile" method="post">
 
             <!-- alert message -->
-            <div class="col-sm-12">
-              <div class="col-sm-2"></div>
+            <div class="col-md-12">
+              <div class="col-md-2"></div>
               <% if(typeof(message.success) !== 'undefined' && message.success){ %>
-              <div class="alert alert-success col-sm-4">
+              <div class="alert alert-success col-md-4">
                 <a class="close" data-dismiss="alert" href="#">&times;</a>
                 <strong><%= message.success %></strong>
               </div>
               <% } %>
               <% if(typeof(message.error) !== 'undefined' && message.error){ %>
-              <div class="alert alert-error col-sm-4">
+              <div class="alert alert-error col-md-4">
                 <a class="close" data-dismiss="alert" href="#">&times;</a>
                 <strong><%= message.error %></strong>
               </div>
@@ -53,44 +53,44 @@
             </div>
 
               <div class="form-group">
-                <label for="staffname" class="col-sm-2 control-label">注册名</label>
-                <div class="col-sm-4">
+                <label for="staffname" class="col-md-2 control-label">注册名</label>
+                <div class="col-md-4">
                   <input type="text" class="form-control" id="staffname" name="staffname" value="<%= staffname %>" disabled>
                 </div>
               </div>
               <div class="form-group">
-                <label for="realname" class="col-sm-2 control-label">真实名</label>
-                <div class="col-sm-4">
+                <label for="realname" class="col-md-2 control-label">真实名</label>
+                <div class="col-md-4">
                   <input type="text" class="form-control" id="realname" name="realname" value="<%= staff.realname %>">
                 </div>
               </div>
               <div class="form-group">
-                <label for="telephone" class="col-sm-2 control-label">工作电话</label>
-                <div class="col-sm-4">
+                <label for="telephone" class="col-md-2 control-label">工作电话</label>
+                <div class="col-md-4">
                   <input type="text" class="form-control" id="telephone" name="telephone" value="<%= staff.telephone %>">
                 </div>
               </div>
               <div class="form-group">
-                <label for="mobilephone" class="col-sm-2 control-label">手机</label>
-                <div class="col-sm-4">
+                <label for="mobilephone" class="col-md-2 control-label">手机</label>
+                <div class="col-md-4">
                   <input type="text" class="form-control" id="mobilephone" name="mobilephone" value="<%= staff.mobilephone %>">
                 </div>
               </div>
               <div class="form-group">
-                <label for="email" class="col-sm-2 control-label">邮箱</label>
-                <div class="col-sm-4">
+                <label for="email" class="col-md-2 control-label">邮箱</label>
+                <div class="col-md-4">
                   <input type="text" class="form-control" id="email" name="email" value="<%= staff.email %>">
                 </div>
               </div>
               <div class="form-group">
-                <label for="greetings" class="col-sm-2 control-label">客服问候语</label>
-                <div class="col-sm-4">
+                <label for="greetings" class="col-md-2 control-label">客服问候语</label>
+                <div class="col-md-4">
                   <textarea class="form-control" id="greetings" name="greetings" placeholder="会话分配到客服时，将自动发送客服个人的问候语"></textarea>
                 </div>
               </div>
               <input type='hidden' id='action' name='action' value='change_profile'/>
               <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-4">
+                <div class="col-md-offset-2 col-md-4">
                   <button type="submit" class="btn btn-info">保存设置</button>
                 </div>
               </div>
@@ -108,16 +108,16 @@
               <form id="password_form" class="form-horizontal" action="/profile" method="post">
 
               <!-- alert message -->
-              <div class="col-sm-12">
-                <div class="col-sm-2"></div>
+              <div class="col-md-12">
+                <div class="col-md-2"></div>
                 <% if(typeof(message.changepasssucc) !== 'undefined' && message.changepasssucc){ %>
-                <div class="alert alert-success col-sm-4">
+                <div class="alert alert-success col-md-4">
                   <a class="close" data-dismiss="alert" href="#">&times;</a>
                   <strong><%= message.changepasssucc %></strong>
                 </div>
                 <% } %>
                 <% if(typeof(message.changepasserr) !== 'undefined' && message.changepasserr){ %>
-                <div class="alert alert-error col-sm-4">
+                <div class="alert alert-error col-md-4">
                   <a class="close" data-dismiss="alert" href="#">&times;</a>
                   <strong><%= message.changepasserr %></strong>
                 </div>
@@ -125,20 +125,20 @@
               </div>
 
                 <div class="form-group">
-                  <label for="oldpassword" class="col-sm-2 control-label">当前密码</label>
-                  <div class="col-sm-4">
+                  <label for="oldpassword" class="col-md-2 control-label">当前密码</label>
+                  <div class="col-md-4">
                     <input type="password" class="form-control" id="oldpassword" name="oldpassword">
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="newpassword" class="col-sm-2 control-label">新密码</label>
-                  <div class="col-sm-4">
+                  <label for="newpassword" class="col-md-2 control-label">新密码</label>
+                  <div class="col-md-4">
                     <input type="password" class="form-control" id="newpassword" name="newpassword">
                   </div>
                 </div>
                 <input type='hidden' id='action' name='action' value='change_password'/>
                 <div class="form-group">
-                  <div class="col-sm-offset-2 col-sm-4">
+                  <div class="col-md-offset-2 col-md-4">
                     <button type="submit" class="btn btn-info">更改密码</button>
                   </div>
                 </div>

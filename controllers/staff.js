@@ -1,7 +1,9 @@
+var ejs = require('ejs');
+var fs = require('fs');
+var crypto = require('crypto'); //md5 require
+
 var config = require('../config');
 var models  = require('../models');
-
-var crypto = require('crypto'); //md5 require
 
 // show staff chat page
 exports.showChat = function(req, res, next) {
@@ -23,10 +25,19 @@ exports.showWait = function(req, res, next) {
 
 // show staff history page
 exports.showHistory = function(req, res, next) {
-  res.render('history', {
-    title: config.name,
-    staffid: req.session.staffid,
-    staffname: req.session.staffname
+  // 查当前staff的所有聊天记录
+  models.CallCenterEvent.findAll({
+    where: {
+      staff_id: req.session.staffid
+    }
+  }).then(function(events) {
+    res.render('history', {
+      title: config.name,
+      staffid: req.session.staffid,
+      staffname: req.session.staffname,
+      events: events
+    });
+
   });
 }
 
@@ -133,5 +144,28 @@ exports.setProfile = function(req, res, next) {
     });
 
   }
+
+}
+
+exports.addChatHistory = function(req, res, next) {
+
+  models.CallCenterContent.findAll({
+    where: {
+      CallCenterEventId: '1459788491'
+    }
+  }).then(function(contents) {
+    for (i in contents) {
+      console.log(contents[i].dataValues);
+    }
+    var templateString = fs.readFileSync('../views/templates/chatHistory.ejs', 'utf-8');
+    var html = ejs.render(templateString, {
+      contents: contents,
+      username: '用户',
+      staffname: req.session.staffname
+    });
+    res.json({ chatHistory: html });
+
+
+  });
 
 }

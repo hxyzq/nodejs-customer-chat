@@ -15,7 +15,74 @@
   <!-- Main content -->
   <section class="content">
 
-    <!-- Your Page Content Here -->
+  <div class="row">
+    <div class="col-md-12">
+
+      <!-- search box -->
+      <div class="box box-info">
+        <!-- <div class="box-header"></div> -->
+        <div class="box-body">
+          <div class="col-md-3 col-xs-12">
+            <h4>日期选择:</h4>
+            <div id="reportrange" class="pull-left" style="background: #fff; cursor: pointer; padding: 10px 15px; border: 1px solid #ccc;border-radius: 5px;">
+              <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+              <span id="searchDateRange"></span> <b class="caret"></b>
+            </div>
+          </div>
+          <div class="col-md-2 col-xs-6">
+            <h4>用户名</h4>
+            <div id="reportrange" class="pull-left" >
+            <input type="text" class="form-control" style="border-radius: 5px" id="username" name="username" placeholder="用户名" value="">
+            </div>
+          </div>
+          <div class="col-md-2 col-xs-6">
+            <h4>&nbsp</h4>
+            <button class="btn btn-lg btn-info" onclick="test()">查询</button>
+          </div>
+        </div>
+        <!-- <div class="box-footer"></div> -->
+      </div>
+      <!-- search box end -->
+      <div class="box box-info">
+        <!-- <div class="box-header"></div> -->
+        <div class="box-body table-responsive no-padding">
+          <table id="questionInfoTable" class="table table-hover table-bordered table-striped table-condensed">
+              <thead>
+              <tr>
+                  <th>用户名</th>
+                  <th>客服名</th>
+                  <th>开始时间</th>
+                  <th>结束时间</th>
+                  <th>操作</th>
+              </tr>
+              </thead>
+              <tbody id="domainTableTbody">
+                <% for (i in events) { %>
+                <tr id="tr_<%= events[i].dataValues.id %>" onclick="" class="cursorPointer" style="height: 35px; cursor: pointer;">
+                    <td id="td_user_<%= events[i].dataValues.id %>">用户<%= events[i].dataValues.user_id %></td>
+                    <td id="td_staff_<%= events[i].dataValues.id %>"><%= staffname %></td>
+                    <td id="td_start_<%= events[i].dataValues.id %>"><%= events[i].dataValues.start_time %></td>
+                    <td id="td_end_<%= events[i].dataValues.id %>"><%= events[i].dataValues.end_time %></td>
+                    <td width="100px"><i class="fa fa-download fa-lg" style="cursor: pointer" title="导出" onclick=""></i></td>
+                </tr>
+                <% } %>
+
+
+
+              </tbody>
+          </table>
+        </div>
+        <!-- <div class="box-footer"></div> -->
+      </div>
+
+      <div id="chatbox">
+
+      </div>
+
+
+    </div>
+
+  </div>
 
   </section><!-- /.content -->
 </div><!-- /.content-wrapper -->

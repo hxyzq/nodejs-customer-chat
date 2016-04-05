@@ -17,7 +17,7 @@ router.get('/history', auth.staffRequired, staff.showHistory); //客服历史聊
 router.get('/profile', auth.staffRequired, staff.showProfile); //客服个人信息页面
 router.post('/profile', auth.staffRequired, staff.setProfile); //提交个人信息
 
-router.post('/history/test', staff.addChatHistory);
+router.post('/history/showChatHistory', staff.showChatHistory);
 
 
 router.get('/index', auth.staffRequired, function (req, res, next) {

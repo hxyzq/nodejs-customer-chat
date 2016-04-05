@@ -1,9 +1,10 @@
-var ejs = require('ejs');
-var fs = require('fs');
-var crypto = require('crypto'); //md5 require
+var ejs    = require('ejs');
+var fs     = require('fs');
+var crypto = require('crypto'); // md5 require
+var moment = require('moment'); // date format
 
 var config = require('../config');
-var models  = require('../models');
+var models = require('../models');
 
 // show staff chat page
 exports.showChat = function(req, res, next) {
@@ -35,7 +36,8 @@ exports.showHistory = function(req, res, next) {
       title: config.name,
       staffid: req.session.staffid,
       staffname: req.session.staffname,
-      events: events
+      events: events,
+      moment: moment
     });
 
   });
@@ -147,24 +149,23 @@ exports.setProfile = function(req, res, next) {
 
 }
 
-exports.addChatHistory = function(req, res, next) {
+exports.showChatHistory = function(req, res, next) {
+  console.log(req.body);
 
   models.CallCenterContent.findAll({
     where: {
-      CallCenterEventId: '1459788491'
+      CallCenterEventId: req.body.eventid
     }
   }).then(function(contents) {
-    for (i in contents) {
-      console.log(contents[i].dataValues);
-    }
+
     var templateString = fs.readFileSync('../views/templates/chatHistory.ejs', 'utf-8');
     var html = ejs.render(templateString, {
-      contents: contents,
-      username: '用户',
+      moment   : moment,
+      contents : contents,
+      username : '用户',
       staffname: req.session.staffname
     });
     res.json({ chatHistory: html });
-
 
   });
 

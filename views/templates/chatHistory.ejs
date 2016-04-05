@@ -1,18 +1,16 @@
-<div class="col-md-4">
+<div class="col-md-12" style="padding: 0;">
   <!-- DIRECT CHAT PRIMARY -->
   <div class="box box-info direct-chat direct-chat-primary">
     <div class="box-header with-border">
       <h3 class="box-title">来自<%= username %></h3>
       <div class="box-tools pull-right">
-        <span data-toggle="tooltip" title="3 New Messages" class="badge bg-light-blue">3</span>
-        <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
         <button class="btn btn-box-tool" data-toggle="tooltip" title="" data-widget="chat-pane-toggle" data-original-title="Contacts"><i class="fa fa-comments"></i></button>
-        <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+        <button class="btn btn-box-tool" onclick="removeProp()"><i class="fa fa-times"></i></button>
       </div>
     </div><!-- /.box-header -->
     <div class="box-body" style="display: block;">
       <!-- Conversations are loaded here -->
-      <div class="direct-chat-messages" style="height: 400px">
+      <div class="direct-chat-messages" style="padding: 0;height: 700px;">
 
         <% for (i in contents) { %>
           <% if (!contents[i].dataValues.speaker) { %>
@@ -20,10 +18,10 @@
           <div class="direct-chat-msg">
             <div class="direct-chat-info clearfix">
               <span class="direct-chat-name pull-left"><%= username %></span>
-              <span class="direct-chat-timestamp pull-right"><%= contents[i].dataValues.speak_time %></span>
+              <span class="direct-chat-timestamp pull-right"><%= moment(contents[i].dataValues.speak_time).format('YYYY-MM-DD HH:mm:ss') %></span>
             </div>
             <img class="direct-chat-img" src="../images/user1-128x128.jpg" alt="message user image"><!-- /.direct-chat-img -->
-            <div class="direct-chat-text"><%= contents[i].dataValues.content %></div>
+            <div class="direct-chat-text" style="float: left;margin-left: 10px;max-width: 90%;"><%= contents[i].dataValues.content %></div>
           </div>
 
           <% } else { %>
@@ -31,10 +29,10 @@
           <div class="direct-chat-msg right">
             <div class="direct-chat-info clearfix">
               <span class="direct-chat-name pull-right"><%= staffname %></span>
-              <span class="direct-chat-timestamp pull-left"><%= contents[i].dataValues.speak_time %></span>
+              <span class="direct-chat-timestamp pull-left"><%= moment(contents[i].dataValues.speak_time).format('YYYY-MM-DD HH:mm:ss') %></span>
             </div>
             <img class="direct-chat-img" src="../images/staff1-128x128.jpg" alt="message user image">
-            <div class="direct-chat-text"><%= contents[i].dataValues.content %></div>
+            <div class="direct-chat-text" style="float: right;margin-right: 10px;max-width: 90%;"><%= contents[i].dataValues.content %></div>
           </div>
 
           <% } %>
@@ -60,7 +58,6 @@
         </ul><!-- /.contatcts-list -->
       </div><!-- /.direct-chat-pane -->
     </div><!-- /.box-body -->
-    <div class="box-footer">
-    </div><!-- /.box-footer-->
+    <!-- <div class="box-footer"></div> --><!-- /.box-footer-->
   </div><!--/.direct-chat -->
 </div>

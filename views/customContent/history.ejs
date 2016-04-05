@@ -39,6 +39,7 @@
             <h4>&nbsp</h4>
             <button class="btn btn-lg btn-info" onclick="test()">查询</button>
           </div>
+          <div id="chatHistoryBox" class="col-md-5" data-container="body" data-html=true></div>
         </div>
         <!-- <div class="box-footer"></div> -->
       </div>
@@ -58,11 +59,11 @@
               </thead>
               <tbody id="domainTableTbody">
                 <% for (i in events) { %>
-                <tr id="tr_<%= events[i].dataValues.id %>" onclick="" class="cursorPointer" style="height: 35px; cursor: pointer;">
+                <tr id="tr_<%= events[i].dataValues.id %>" onclick="showChatHistory('<%= events[i].dataValues.id %>')" class="cursorPointer" style="height: 35px; cursor: pointer;">
                     <td id="td_user_<%= events[i].dataValues.id %>">用户<%= events[i].dataValues.user_id %></td>
                     <td id="td_staff_<%= events[i].dataValues.id %>"><%= staffname %></td>
-                    <td id="td_start_<%= events[i].dataValues.id %>"><%= events[i].dataValues.start_time %></td>
-                    <td id="td_end_<%= events[i].dataValues.id %>"><%= events[i].dataValues.end_time %></td>
+                    <td id="td_start_<%= events[i].dataValues.id %>"><%= moment(events[i].dataValues.start_time).format('YYYY-MM-DD HH:mm:ss') %></td>
+                    <td id="td_end_<%= events[i].dataValues.id %>"><%= moment(events[i].dataValues.end_time).format('YYYY-MM-DD HH:mm:ss') %></td>
                     <td width="100px"><i class="fa fa-download fa-lg" style="cursor: pointer" title="导出" onclick=""></i></td>
                 </tr>
                 <% } %>

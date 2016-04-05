@@ -22,6 +22,9 @@
     -->
     <link rel="stylesheet" href="adminlte/css/skins/skin-blue.min.css">
 
+    <!-- application css -->
+    <link rel="stylesheet" href="stylesheets/application.css">
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -57,14 +60,29 @@
 
     <script>
 
+    // 激活popover弹出框
+    $("#chatHistoryBox").popover({
+      placement: 'bottom',
+      toggle   : 'popover',
+      container: 'body',
+      html     : true,
+      content  : '<h3>loading...</h3>'
+    });
 
-    function test() {
-      $.post("/history/test", {message: 'Hello World!'}, function (data) {
-        console.log(data);
-        // alert(data.message);
-        $("#chatbox").html(data.chatHistory);
+    function showChatHistory(eventid) {
+
+      $.post("/history/showChatHistory", { eventid: eventid }, function (data) {
+
+        var popover = $('#chatHistoryBox').data('bs.popover');
+        popover.options.content = data.chatHistory; // 设置弹出框的内容
+        $('#chatHistoryBox').popover('show');
 
       });
+
+    }
+
+    function removeProp() {
+      $('#chatHistoryBox').popover('hide');
     }
 
     //时间插件

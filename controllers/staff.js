@@ -150,7 +150,6 @@ exports.setProfile = function(req, res, next) {
 }
 
 exports.showChatHistory = function(req, res, next) {
-  console.log(req.body);
 
   models.CallCenterContent.findAll({
     where: {
@@ -166,6 +165,42 @@ exports.showChatHistory = function(req, res, next) {
       staffname: req.session.staffname
     });
     res.json({ chatHistory: html });
+
+  });
+
+}
+
+exports.showHistoryList = function(req, res, next) {
+  console.log(req.body);
+  // console.log(req.body.startDate);
+  // console.log(req.body.endDate);
+
+  var start = moment(req.body.startDate).format('YYYY-MM-DD HH:mm:ss');
+  var end = moment(req.body.endDate).format('YYYY-MM-DD HH:mm:ss');
+  console.log('******');
+  console.log(start);
+  console.log(end);
+
+  // 查daterange内的聊天记录
+  models.CallCenterEvent.findAll({
+    where: {
+      staff_id: req.session.staffid,
+      start_time: {
+        $between: [start, end],
+      }
+    }
+  }).then(function(events) {
+    for (i in events) {
+      console.log(events[i].dataValues);
+    }
+
+    var templateString = fs.readFileSync('../views/templates/historyList.ejs', 'utf-8');
+    var html = ejs.render(templateString, {
+      moment   : moment,
+      events   : events,
+      staffname: req.session.staffname
+    });
+    res.json({ historyList: html });
 
   });
 

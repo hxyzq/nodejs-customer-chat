@@ -1,6 +1,13 @@
+/*设置弹出框高度*/
 .popover {
   min-width: 35%;
   max-width: 100%;
   min-height: 80%;
   padding: 0;
+}
+
+/*去除弹出框上箭头*/
+.popover>.arrow,
+.popover>.arrow:after {
+  display: none;
 }

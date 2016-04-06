@@ -94,13 +94,18 @@ function sendMessage(obj) {
   });
 }
 
-//维护正在服务列表
+//维护wait页面的正在服务用户列表
 socket.on('update servicelist', function(data) {
-  $("#servicelist").empty();
-  for (var i = data.length - 1; i >= 0; i--) {
-    addServiceToList(data[i]);
-  }
-  updateServiceListCount();
+  // $("#servicelist").empty();
+  // for (var i = data.length - 1; i >= 0; i--) {
+  //   addServiceToList(data[i]);
+  // }
+  // updateServiceListCount();
+  $("#serviceTableTbody").html(data);
+});
+
+socket.on('update waituserlist', function(data) {
+  $("#waitUserTableTbody").html(data);
 });
 
 socket.on('remove service', function(data) {
@@ -227,12 +232,12 @@ function boxRemove(userid) {
 }
 
 function staffLogout() {
-socket.emit('staff logout', {
-  staffid: staffid,
-  staffname: staffname
-});
-// 链接跳转 登出
-window.location.href = '/logout';
+  socket.emit('staff logout', {
+    staffid: staffid,
+    staffname: staffname
+  });
+  // 链接跳转 登出
+  window.location.href = '/logout';
 }
 </script>
 

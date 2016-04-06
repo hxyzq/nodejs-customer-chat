@@ -15,7 +15,61 @@
   <!-- Main content -->
   <section class="content">
 
-    <!-- Your Page Content Here -->
+    <div class="row">
+
+      <div class="col-md-6">
+        <div class="box box-info">
+          <div class="box-header with-border">
+            <h3 class="box-title">待接入用户</h3>
+          </div>
+          <div class="box-body table-responsive">
+
+              <table id="waitUserTable" class="table table-hover table-bordered table-striped table-condensed">
+                  <thead>
+                  <tr>
+                      <th>用户名</th>
+                      <th>请求时间</th>
+                      <th>操作</th>
+                  </tr>
+                  </thead>
+                  <tbody id="waitUserTableTbody">
+
+
+                  </tbody>
+              </table>
+
+          </div>
+          <div class="box-footer"></div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="box box-info">
+          <div class="box-header">
+            <h3 class="box-title">正在服务用户</h3>
+          </div>
+
+          <div class="box-body table-responsive">
+              <table id="serviceTable" class="table table-hover table-bordered table-striped table-condensed">
+                  <thead>
+                  <tr>
+                      <th>用户名</th>
+                      <th>客服名</th>
+                      <th>开始时间</th>
+                  </tr>
+                  </thead>
+                  <tbody id="serviceTableTbody">
+
+
+                  </tbody>
+              </table>
+            </div>
+
+          <div class="box-footer"></div>
+        </div>
+      </div>
+
+    </div>
 
   </section><!-- /.content -->
 </div><!-- /.content-wrapper -->

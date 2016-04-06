@@ -171,15 +171,12 @@ exports.showChatHistory = function(req, res, next) {
 }
 
 exports.showHistoryList = function(req, res, next) {
-  console.log(req.body);
-  // console.log(req.body.startDate);
-  // console.log(req.body.endDate);
+  // console.log(req.body);
 
   var start = moment(req.body.startDate).format('YYYY-MM-DD HH:mm:ss');
   var end = moment(req.body.endDate).format('YYYY-MM-DD HH:mm:ss');
-  console.log('******');
-  console.log(start);
-  console.log(end);
+  // console.log(start);
+  // console.log(end);
 
   // 查daterange内的聊天记录
   models.CallCenterEvent.findAll({
@@ -190,9 +187,9 @@ exports.showHistoryList = function(req, res, next) {
       }
     }
   }).then(function(events) {
-    for (i in events) {
-      console.log(events[i].dataValues);
-    }
+    // for (i in events) {
+    //   console.log(events[i].dataValues);
+    // }
 
     var templateString = fs.readFileSync('../views/templates/historyList.ejs', 'utf-8');
     var html = ejs.render(templateString, {

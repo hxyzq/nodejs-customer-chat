@@ -1,0 +1,12 @@
+
+<% for (i in onlineUsers) { %>
+  <% if (!onlineUsers[i].isServed) { %>
+
+  <tr id="" onclick="" style="height: 38px;">
+      <td id=""><%= onlineUsers[i].username %></td>
+      <td id=""><%= moment(onlineUsers[i].requesttime).format('YYYY-MM-DD HH:mm:ss') %></td>
+      <td id=""><i class="fa fa-sign-in fa-lg" style="cursor: pointer" title="转入" onclick=""></i></td>
+  </tr>
+
+  <% } %>
+<% } %>

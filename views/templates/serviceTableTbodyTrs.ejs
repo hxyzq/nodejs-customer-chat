@@ -1,0 +1,8 @@
+
+<% for (i in services) { %>
+<tr id="tr_<%= services[i].id %>" onclick="" style="height: 38px;">
+    <td id=""><%= onlineUsers[services[i].userid].username %></td>
+    <td id=""><%= onlineStaffs[services[i].staffid].staffname %></td>
+    <td id=""><%= moment(services[i].starttime).format('YYYY-MM-DD HH:mm:ss') %></td>
+</tr>
+<% } %>

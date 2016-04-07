@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html style="height: 100%">
+<html>
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -28,38 +28,35 @@
     <![endif]-->
   </head>
 
-  <body style="height: 100%;">
-    <div class="row" style="height: 100%;">
+  <body>
 
-      <div class="col-md-12" style="height: 100%;">
         <!-- DIRECT CHAT WARNING -->
-        <div class="box box-primary box-solid direct-chat direct-chat-primary" style="height: 100%;">
-          <div class="box-header">
-            <span><i class="fa fa-chevron-left"></i>&nbsp&nbsp</span>
-            <h3 class="box-title">聊天消息-微尚</h3>
+        <div id="chatBox" class="box box-primary direct-chat direct-chat-primary" style="margin: 0;">
+          <div class="box-header" style="position: fixed;top: 0px;left: 5px;right: 5px;text-align: center;">
+            <i class="fa fa-chevron-left" style="float: left;"></i>
+            <h3 style="display: inline;">时尚汇</h3>
+            <i class="fa fa-commenting-o" style="float: right;"></i>
           </div><!-- /.box-header -->
-          <div class="box-body" style="height: 90%;">
+          <div class="box-body">
             <!-- Conversations are loaded here -->
-            <div class="direct-chat-messages" style="height: 100%">
+            <div class="direct-chat-messages" style="margin-bottom: 0;padding: 35px 0;">
 
               <!-- Message to the left or right -->
 
             </div><!--/.direct-chat-messages-->
 
           </div><!-- /.box-body -->
-          <div class="box-footer" style="height: 10%;">
-            <form class="input-group">
+          <div class="box-footer" style="position: fixed;bottom: 0px;left: 5px;right: 5px;">
+            <div class="input-group">
               <div class="input-group-addon"><i class="fa fa-smile-o"></i></div>
               <input type="text" placeholder="请输入您的的消息" class="form-control" id="inputMessage">
               <span class="input-group-btn">
                 <button type="button" class="btn btn-primary btn-flat" id="sendButton">发送</button>
               </span>
-            </form>
+            </div>
           </div><!-- /.box-footer-->
         </div><!--/.direct-chat -->
-      </div>
 
-    </div><!-- ./wrapper -->
 
     <!-- REQUIRED JS SCRIPTS -->
 
@@ -73,11 +70,21 @@
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
+      var box_height = $(window).height();
+      var header_height = $(".box-header").height();
+      var footer_height = $(".box-footer").height();
+      // console.log(box_height);
+      // console.log(header_height);
+      // console.log(footer_height);
+      $(".direct-chat-messages").css("height", box_height - header_height - footer_height);
+
       $(document).ready(function(){
+
         var socket = io();
 
-        var userid = Math.random()*900000|0+100000; //生成6位随机数
-        var username = '用户' + userid;
+        var userid = '<%= userid %>';
+        var username = '<%= username %>';
+        var headimgurl = '<%= headimgurl %>';
 
         log('正在连接服务器...');
         socket.on('connect', function() {
@@ -102,12 +109,10 @@
           });
         });
 
-
         //inputMessage检测回车发送消息
         $('#inputMessage').keydown(function(event) {
          if(13 == event.keyCode) {
             sendMessage();
-            return false;
           }
         });
         $("#sendButton").click(function(){
@@ -140,7 +145,7 @@
           $(".direct-chat-messages").append(
             '<div class="direct-chat-msg right"><div class="direct-chat-info clearfix"><span class="direct-chat-name pull-right">' + username +
             '</span><span class="direct-chat-timestamp pull-left">' + '</span><span class="direct-chat-timestamp pull-left">' + getCurTime() +
-            '</span></div>' + '<img class="direct-chat-img" src="../images/user1-128x128.jpg" alt="message user image"><div class="direct-chat-text" style="float: right;margin-right: 10px;max-width: 90%;">' + message +
+            '</span></div>' + '<img class="direct-chat-img" src="' + headimgurl + '" alt="message user image"><div class="direct-chat-text" style="float: right;margin-right: 10px;max-width: 85%;">' + message +
             '</div></div>'
           );
           chatMessagesToBottom();
@@ -150,7 +155,7 @@
           $(".direct-chat-messages").append(
             '<div class="direct-chat-msg"><div class="direct-chat-info clearfix"><span class="direct-chat-name pull-left">' + data.staffname +
             '</span><span class="direct-chat-timestamp pull-left">' + '</span><span class="direct-chat-timestamp pull-right">' + getCurTime() +
-            '</span></div>' + '<img class="direct-chat-img" src="../images/staff1-128x128.jpg" alt="message user image"><div class="direct-chat-text" style="float: left;margin-left: 10px;max-width: 90%;">' + data.message +
+            '</span></div>' + '<img class="direct-chat-img" src="../images/staff1-128x128.jpg" alt="message user image"><div class="direct-chat-text" style="float: left;margin-left: 10px;max-width: 85%;">' + data.message +
             '</div></div>'
           );
           chatMessagesToBottom();
@@ -170,9 +175,6 @@
             s = t.getSeconds();
           return [M, '-', D, ' ', H, ':', m, ':', s].join('');
         }
-
-
-
 
       });
     </script>

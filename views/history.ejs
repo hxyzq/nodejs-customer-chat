@@ -57,6 +57,8 @@
     <!-- date-range-picker -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
     <script src="adminlte/plugins/daterangepicker/daterangepicker.js"></script>
+    <!-- Bootbox 4.4.0 -->
+    <script src="//cdn.bootcss.com/bootbox.js/4.4.0/bootbox.min.js"></script>
 
     <script>
 
@@ -69,6 +71,7 @@
       content  : '<h3>loading...</h3>'
     });
 
+
     function showChatHistory(eventid) {
 
       $.post("/history/showChatHistory", { eventid: eventid }, function (data) {
@@ -79,6 +82,22 @@
 
       });
 
+    }
+
+    function deleteChatHistory(eventid) {
+      // 设置bootbox中文
+      bootbox.setDefaults("locale","zh_CN");
+      bootbox.confirm('确认删除这条聊天记录吗', function(result) {
+        if (result) {
+          $.post("/history/deleteChatHistory", {eventid: eventid }, function(data) {
+            if (data.result) {
+              bootbox.alert('删除成功');
+            } else {
+              bootbox.alert('删除失败');
+            }
+          });
+        }
+      });
     }
 
     function removeProp() {

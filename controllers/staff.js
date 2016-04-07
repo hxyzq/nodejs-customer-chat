@@ -170,6 +170,28 @@ exports.showChatHistory = function(req, res, next) {
 
 }
 
+exports.deleteChatHistory = function(req, res, next) {
+  var eventid = req.body.eventid
+  console.log('eventid: ' + eventid);
+  // 先删content
+  models.CallCenterContent.destroy({
+    where: {
+      CallCenterEventId: eventid
+    }
+  }).then(function () {
+    // 再删event
+    models.CallCenterEvent.destroy({
+      where: {
+        id: eventid
+      }
+    }).then(function (result) {
+      res.json({ result: result }); // 返回删除结果
+    });
+
+  });
+
+}
+
 exports.showHistoryList = function(req, res, next) {
   // console.log(req.body);
 

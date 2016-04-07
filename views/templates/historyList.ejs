@@ -14,12 +14,16 @@
         <tbody id="domainTableTbody">
 
           <% for (i in events) { %>
-          <tr id="tr_<%= events[i].dataValues.id %>" onclick="showChatHistory('<%= events[i].dataValues.id %>')" class="cursorPointer" style="height: 38px;cursor: pointer;">
-              <td id="td_user_<%= events[i].dataValues.id %>">用户<%= events[i].dataValues.user_id %></td>
-              <td id="td_staff_<%= events[i].dataValues.id %>"><%= staffname %></td>
-              <td id="td_start_<%= events[i].dataValues.id %>"><%= moment(events[i].dataValues.start_time).format('YYYY-MM-DD HH:mm:ss') %></td>
-              <td id="td_end_<%= events[i].dataValues.id %>"><%= moment(events[i].dataValues.end_time).format('YYYY-MM-DD HH:mm:ss') %></td>
-              <td width="100px"><i class="fa fa-download fa-lg" style="cursor: pointer" title="导出" onclick=""></i></td>
+          <tr id="tr_<%= events[i].dataValues.id %>" class="cursorPointer" style="height: 38px;cursor: pointer;">
+              <td id="td_user_<%= events[i].dataValues.id %>" onclick="showChatHistory('<%= events[i].dataValues.id %>')">用户<%= events[i].dataValues.user_id %></td>
+              <td id="td_staff_<%= events[i].dataValues.id %>" onclick="showChatHistory('<%= events[i].dataValues.id %>')"><%= staffname %></td>
+              <td id="td_start_<%= events[i].dataValues.id %>" onclick="showChatHistory('<%= events[i].dataValues.id %>')"><%= moment(events[i].dataValues.start_time).format('YYYY-MM-DD HH:mm:ss') %></td>
+              <td id="td_end_<%= events[i].dataValues.id %>" onclick="showChatHistory('<%= events[i].dataValues.id %>')"><%= moment(events[i].dataValues.end_time).format('YYYY-MM-DD HH:mm:ss') %></td>
+              <td>
+                <i class="fa fa-download fa-lg" style="cursor: pointer" title="导出" onclick=""></i>
+                &nbsp;&nbsp;
+                <i class="fa fa-trash fa-lg" style="cursor: pointer" title="删除" onclick="deleteChatHistory('<%= events[i].dataValues.id %>')"></i>
+              </td>
           </tr>
           <% } %>
 

@@ -69,15 +69,23 @@ function server() {
   });
 
   services[user.userid] = {
-    id     : id,
-    userid : userid,
-    staffid: staffid
+    id       : id,
+    userid   : user.userid,
+    username : user.username,
+    staffid  : staff.staffid,
+    staffname: staff.staffname
   };
+
+  var templateString = fs.readFileSync('../views/templates/chatBox.ejs', 'utf-8');
+  var html = ejs.render(templateString, {
+    user  : user,
+  });
 
   //更新接入用户
   onlineStaffs[staff.staffid].socket.emit('add served user', {
-    userid: onlineUsers[user.userid].userid,
-    username: onlineUsers[user.userid].username
+    userid  : onlineUsers[user.userid].userid,
+    username: onlineUsers[user.userid].username,
+    chatBox : html
   });
   //向用户发送分配客服成功log
   onlineUsers[user.userid].socket.emit('log', onlineStaffs[staffid].staffname + '正在为您服务');
@@ -164,14 +172,60 @@ function addStaff(data) {
   } else {
   // 客服重连 更新socket add chatbox
     onlineStaffs[data.staffid].socket = this;
+    // 重载chatBox
     for (userid in services) {
       if (services[userid].staffid === data.staffid) {
-        onlineStaffs[data.staffid].socket.emit('add served user', {
-          userid: onlineUsers[userid].userid,
-          username: onlineUsers[userid].username
+
+        var templateString = fs.readFileSync('../views/templates/chatBox.ejs', 'utf-8');
+        var html = ejs.render(templateString, {
+          user  : onlineUsers[userid],
+          moment: moment
         });
+        onlineStaffs[data.staffid].socket.emit('add served user', {
+          userid  : onlineUsers[userid].userid,
+          username: onlineUsers[userid].username,
+          chatBox : html
+        });
+
       }
     }
+    // 重载之前的聊天记录
+    for (userid in services) {
+      if (services[userid].staffid === data.staffid) {
+
+        // TODO 查之前的聊天记录
+        models.CallCenterContent.findAll({
+          where: {
+            CallCenterEventId: services[userid].id
+          }
+        }).then(function(contents) {
+
+          var templateString = fs.readFileSync('../views/templates/chatMessages.ejs', 'utf-8');
+          var html = ejs.render(templateString, {
+            username : services[userid].username,
+            staffname: services[userid].staffname,
+            contents : contents,
+            moment   : moment
+          });
+
+          if (contents[0] === undefined) return; // 如果之前没有聊天记录
+          var eventid = contents[0].dataValues.CallCenterEventId;
+          // 通过聊天记录的CallCenterEventId在services中查userid
+          for (i in services) {
+            if (services[i].id == eventid) {
+              onlineStaffs[data.staffid].socket.emit('load chatHistory', {
+                userid     : services[i].userid,
+                chatHistory: html
+              });
+
+            }
+          }
+
+        });
+
+      }
+    }
+
     // 更新wait page页面的正在服务用户列表
     updateServiceList();
     // 更新wait page页面的待接入用户列表

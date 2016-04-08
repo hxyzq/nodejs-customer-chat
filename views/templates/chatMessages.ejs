@@ -1,0 +1,27 @@
+
+
+<% for (i in contents) { %>
+  <% if (!contents[i].dataValues.speaker) { %>
+
+  <div class="direct-chat-msg">
+    <div class="direct-chat-info clearfix">
+      <span class="direct-chat-name pull-left"><%= username %></span>
+      <span class="direct-chat-timestamp pull-right"><%= moment(contents[i].dataValues.speak_time).format('YYYY-MM-DD HH:mm:ss') %></span>
+    </div>
+    <img class="direct-chat-img" src="../images/user1-128x128.jpg" alt="message user image"><!-- /.direct-chat-img -->
+    <div class="direct-chat-text" style="float: left;margin-left: 10px;max-width: 85%;"><%= contents[i].dataValues.content %></div>
+  </div>
+
+  <% } else { %>
+
+  <div class="direct-chat-msg right">
+    <div class="direct-chat-info clearfix">
+      <span class="direct-chat-name pull-right"><%= staffname %></span>
+      <span class="direct-chat-timestamp pull-left"><%= moment(contents[i].dataValues.speak_time).format('YYYY-MM-DD HH:mm:ss') %></span>
+    </div>
+    <img class="direct-chat-img" src="../images/staff1-128x128.jpg" alt="message user image">
+    <div class="direct-chat-text" style="float: right;margin-right: 10px;max-width: 85%;"><%= contents[i].dataValues.content %></div>
+  </div>
+
+  <% } %>
+<% } %>

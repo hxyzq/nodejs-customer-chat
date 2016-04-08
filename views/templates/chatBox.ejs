@@ -1,0 +1,26 @@
+<div class="box box-default direct-chat direct-chat-primary">
+
+  <div class="box-header">
+    <h3 class="box-title">会话来自：<%= user.username %></h3>
+    <div class="box-tools pull-right">
+      <span data-toggle="tooltip" title="3 New Messages" class="badge bg-light-blue">3</span>
+      <button class="btn btn-box-tool" data-widget="collapse" id="collapse_<%= user.userid %>"><i class="fa fa-minus"></i></button>
+      <button class="btn btn-box-tool" data-widget="remove" id="remove_<%= user.userid %>" onclick="boxRemove()"><i class="fa fa-times"></i></button>
+    </div>
+  </div>
+
+  <div class="box-body">
+    <div class="direct-chat-messages" id="chatMessages_<%= user.userid %>" style="height: 400px">
+    </div>
+  </div>
+
+  <div class="box-footer">
+    <div class="input-group">
+      <input type="text" name="message" placeholder="请输入您的的消息" class="form-control" id="inputMessage_<%= user.userid %>" onkeydown="inputMessageEnter(event, '<%= user.userid %>')">
+      <span class="input-group-btn">
+        <button type="button" class="btn btn-primary btn-flat" onclick="sendMessage('<%= user.userid %>')" id="sendButton_<%= user.userid %>" name="成浩">发送</button>
+      </span>
+    </div>
+  </div>
+
+</div>

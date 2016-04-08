@@ -16,13 +16,18 @@ socket.on('connect', function() {
 
 });
 
-//更新接入用户
+// 更新接入用户
 socket.on('add served user', function(data) {
   //增加会话列表
   $(".list-group").append('<a href="#" class="list-group-item" style="text-align: center;" id="' + 'userlist' + data.userid + '" onclick="boxCollapse('+ data.userid +')">' + data.username + '</a>');
   //增加聊天窗口
   addChatBox(data);
 });
+// 加载之前的聊天记录
+socket.on('load chatHistory', function(data) {
+  $("#chatMessages_" + data.userid).append(data.chatHistory);
+});
+
 //移除接入用户
 socket.on('remove served user', function(data) {
   log(data.username + '已经退出了聊天', data.userid);
@@ -67,22 +72,16 @@ socket.on('remove staff', function(data) {
 //inputMessage检测回车并绑定到send按钮的click事件
 function inputMessageEnter(event, userid) {
   if (event.code == 'Enter' || event.code == 'NumpadEnter' || event.keyCode == '13') {
-    $("#" + userid).click();
+    $("#sendButton_" + userid).click();
   }
 }
-function sendMessage(obj) {
-  //获取send按钮所在chatBox的message
-  var message = obj.parentNode.parentNode.firstChild.value;
+function sendMessage(userid) {
+  var message = $("#inputMessage_" + userid).val();
   if (message == '') return;
-  obj.parentNode.parentNode.firstChild.value = "";
-
-  //从send按钮获取userid和username
-  var userid = obj.getAttribute("id");
-  var username = obj.getAttribute("name");
+  $("#inputMessage_" + userid).val("");
 
   addStaffMessage({
     userid: userid,
-    username: username,
     message: message
   });
 
@@ -95,8 +94,8 @@ function sendMessage(obj) {
 }
 // html转码
 function htmlEncode (str){
+  if(str == "") return "";
   var s = "";
-  if(str.length == 0) return "";
   s = str.replace(/&/g,"&amp;");
   s = s.replace(/</g,"&lt;");
   s = s.replace(/>/g,"&gt;");
@@ -176,18 +175,8 @@ function updateServiceListCount() {
 }
 
 function addChatBox(data) {
-  var chatBox = '<div class="box box-default direct-chat direct-chat-primary"><div class="box-header">'
-  + '<h3 class="box-title">' + '会话来自：' + data.username + '</h3>'
-  + '<div class="box-tools pull-right"><span data-toggle="tooltip" title="3 New Messages" class="badge bg-light-blue">3</span>'
-  + '<button class="btn btn-box-tool" data-widget="collapse" id="' + 'collapse' + data.userid + '"><i class="fa fa-minus"></i></button>'
-  + '<button class="btn btn-box-tool" data-widget="remove" id="' + 'remove' + data.userid + '" onclick="boxRemove(' + data.userid + ')"><i class="fa fa-times"></i></button>'
-  + '</div></div><div class="box-body">'
-  + '<div class="direct-chat-messages" id="' + 'chatMessages' + data.userid + '" style="height: 400px"></div>'
-  + '<div class="box-footer"><div class="input-group">'
-  + '<input type="text" name="message" placeholder="请输入您的的消息" class="form-control" id="inputMessage" onkeydown="inputMessageEnter(event, \'' + data.userid + '\')">'
-  + '<span class="input-group-btn"><button type="button" class="btn btn-primary btn-flat" onclick="sendMessage(this)" id="' + data.userid + '" name="' + data.username + '">发送</button></span>'
-  + '</div></div></div>';
-  //将userid和username赋值给button的id和name属性，可以发送消息给相应用户
+
+  var chatBox = data.chatBox;
   $(".col-md-8").append(chatBox);
   //显示开始服务log
   log('开始服务：' + data.username, data.userid);
@@ -206,27 +195,27 @@ function addChatBox(data) {
 }
 
 function addUserMessage(data) {
-  $("#" + 'chatMessages' + data.userid).append(
+  $("#" + 'chatMessages_' + data.userid).append(
     '<div class="direct-chat-msg"><div class="direct-chat-info clearfix"><span class="direct-chat-name pull-left">' + data.username +
     '</span><span class="direct-chat-timestamp pull-left">' + '</span><span class="direct-chat-timestamp pull-right">' + getCurTime() +
     '</span></div>' + '<img class="direct-chat-img" src="../images/user1-128x128.jpg" alt="message user image"><div class="direct-chat-text" style="float: left;margin-left: 10px;max-width: 85%;">' + htmlEncode(data.message) +
     '</div></div>'
     );
   //滚动聊天栏到最底部
-  var height = $("#" + 'chatMessages' + data.userid).prop("scrollHeight");
-  $("#" + 'chatMessages' + data.userid).prop('scrollTop', height);
+  var height = $("#chatMessages_" + data.userid).prop("scrollHeight");
+  $("#chatMessages_" + data.userid).prop('scrollTop', height);
 }
 
 function addStaffMessage(data) {
-  $("#" + 'chatMessages' + data.userid).append(
+  $("#" + 'chatMessages_' + data.userid).append(
     '<div class="direct-chat-msg right"><div class="direct-chat-info clearfix"><span class="direct-chat-name pull-right">' + staffname +
     '</span><span class="direct-chat-timestamp pull-left">' + '</span><span class="direct-chat-timestamp pull-left">' + getCurTime() +
     '</span></div>' + '<img class="direct-chat-img" src="../images/staff1-128x128.jpg" alt="message user image"><div class="direct-chat-text" style="float: right;margin-right: 10px;max-width: 85%;">' + htmlEncode(data.message) +
     '</div></div>'
   );
    //滚动聊天栏到最底部
-  var height = $("#" + 'chatMessages' + data.userid).prop("scrollHeight");
-  $("#" + 'chatMessages' + data.userid).prop('scrollTop', height);
+  var height = $("#chatMessages_" + data.userid).prop("scrollHeight");
+  $("#chatMessages_" + data.userid).prop('scrollTop', height);
 }
 function log(message, userid) {
   $("#" + 'chatMessages' + userid).append(

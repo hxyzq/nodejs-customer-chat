@@ -50,5 +50,15 @@
     <!-- AdminLTE App -->
     <script src="adminlte/js/app.min.js"></script>
 
+    <script>
+      // 调整userlist高度
+      $(document).ready(function(){
+        console.log($(".content-wrapper").height());
+        console.log($(".content-header").height());
+        var list_height = $(".content-wrapper").height() - $(".content-header").height() - 40;
+        $(".tabbable").css("height", list_height);
+      });
+    </script>
+
   </body>
 </html>

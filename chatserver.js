@@ -181,7 +181,7 @@ function addStaff(data) {
           user  : onlineUsers[userid],
           moment: moment
         });
-        onlineStaffs[data.staffid].socket.emit('add served user', {
+        onlineStaffs[data.staffid].socket.emit('reload served user', {
           userid  : onlineUsers[userid].userid,
           username: onlineUsers[userid].username,
           chatBox : html
@@ -214,6 +214,7 @@ function addStaff(data) {
           for (i in services) {
             if (services[i].id == eventid) {
               onlineStaffs[data.staffid].socket.emit('load chatHistory', {
+                username   : services[i].username,
                 userid     : services[i].userid,
                 chatHistory: html
               });

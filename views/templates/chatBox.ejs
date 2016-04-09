@@ -5,7 +5,7 @@
     <div class="box-tools pull-right">
       <span data-toggle="tooltip" title="3 New Messages" class="badge bg-light-blue">3</span>
       <button class="btn btn-box-tool" data-widget="collapse" id="collapse_<%= user.userid %>"><i class="fa fa-minus"></i></button>
-      <button class="btn btn-box-tool" data-widget="remove" id="remove_<%= user.userid %>" onclick="boxRemove()"><i class="fa fa-times"></i></button>
+      <button class="btn btn-box-tool" data-widget="remove" id="remove_<%= user.userid %>" onclick="boxRemove('<%= user.userid %>', '<%= user.username %>')"><i class="fa fa-times"></i></button>
     </div>
   </div>
 

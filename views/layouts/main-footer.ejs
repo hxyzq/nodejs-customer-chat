@@ -1,3 +1,4 @@
+<script src="//cdn.bootcss.com/bootbox.js/4.4.0/bootbox.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="javascripts/ejs.js"></script>
 
@@ -19,7 +20,16 @@ socket.on('connect', function() {
 // 更新接入用户
 socket.on('add served user', function(data) {
   //增加会话列表
-  $(".list-group").append('<a href="#" class="list-group-item" style="text-align: center;" id="' + 'userlist' + data.userid + '" onclick="boxCollapse('+ data.userid +')">' + data.username + '</a>');
+  $(".list-group").append('<a href="#" class="list-group-item" style="text-align: center;" id="' + 'userlist_' + data.userid + '" onclick="boxCollapse(\''+ data.userid +'\')">' + data.username + '</a>');
+  //增加聊天窗口
+  addChatBox(data);
+  //发送问候信息
+  sayHello(data);
+});
+// 重载接入用户
+socket.on('reload served user', function(data) {
+  //增加会话列表
+  $(".list-group").append('<a href="#" class="list-group-item" style="text-align: center;" id="' + 'userlist_' + data.userid + '" onclick="boxCollapse(\''+ data.userid +'\')">' + data.username + '</a>');
   //增加聊天窗口
   addChatBox(data);
 });
@@ -29,6 +39,7 @@ socket.on('load chatHistory', function(data) {
   // 滚动聊天栏到最底部
   var height = $("#chatMessages_" + data.userid).prop("scrollHeight");
   $("#chatMessages_" + data.userid).prop('scrollTop', height);
+  log('正在服务：' + data.username, data.userid);
 });
 
 //移除接入用户
@@ -183,18 +194,6 @@ function addChatBox(data) {
   $(".col-md-8").append(chatBox);
   //显示开始服务log
   log('开始服务：' + data.username, data.userid);
-  //发送问候信息
-  // addStaffMessage({
-  //   userid: data.userid,
-  //   username: data.username,
-  //   message: '您好，有什么可以帮助您的吗？'
-  // });
-  // socket.emit('staff message', {
-  //   staffid: staffid,
-  //   staffname: staffname,
-  //   userid: data.userid,
-  //   message: '您好，有什么可以帮助您的吗？'
-  // });
 }
 
 function addUserMessage(data) {
@@ -221,7 +220,7 @@ function addStaffMessage(data) {
   $("#chatMessages_" + data.userid).prop('scrollTop', height);
 }
 function log(message, userid) {
-  $("#" + 'chatMessages' + userid).append(
+  $("#chatMessages_" + userid).append(
     '<p class="direct-chat-timestamp small" style="text-align: center;">' + message + '</p>'
   );
 }
@@ -237,12 +236,12 @@ function getCurTime(){
 //chatBox折叠
 function boxCollapse(userid) {
   console.log(userid);
-  $("#" + 'collapse' + userid).click();
+  $("#collapse_" + userid).click();
 }
 //chatBox关闭
-function boxRemove(userid) {
+function boxRemove(userid, username) {
   //对应会话列表删除
-  $("#" + 'userlist' + userid).remove();
+  $("#userlist_" + userid).remove();
 }
 
 function staffLogout() {
@@ -252,6 +251,19 @@ function staffLogout() {
   });
   // 链接跳转 登出
   window.location.href = '/logout';
+}
+function sayHello(data) {
+  addStaffMessage({
+    userid  : data.userid,
+    username: data.username,
+    message : '您好，有什么可以帮助您的吗？'
+  });
+  socket.emit('staff message', {
+    staffid  : staffid,
+    staffname: staffname,
+    userid   : data.userid,
+    message  : '您好，有什么可以帮助您的吗？'
+  });
 }
 </script>
 

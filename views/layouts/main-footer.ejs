@@ -26,6 +26,9 @@ socket.on('add served user', function(data) {
 // 加载之前的聊天记录
 socket.on('load chatHistory', function(data) {
   $("#chatMessages_" + data.userid).append(data.chatHistory);
+  // 滚动聊天栏到最底部
+  var height = $("#chatMessages_" + data.userid).prop("scrollHeight");
+  $("#chatMessages_" + data.userid).prop('scrollTop', height);
 });
 
 //移除接入用户

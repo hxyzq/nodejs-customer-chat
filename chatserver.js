@@ -244,8 +244,6 @@ function removeUser(data) {
     delete onlineUsers[this.userid];
     updateUserList();
 
-    if (user.isServed === false) return; //如果该用户没有被服务，直接退出
-
     //移除接入用户
     onlineStaffs[services[user.userid].staffid].socket.emit('remove served user', {
       userid: user.userid,

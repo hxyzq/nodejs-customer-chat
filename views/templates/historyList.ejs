@@ -21,7 +21,7 @@
               <td id="td_end_<%= events[i].dataValues.id %>" onclick="showChatHistory('<%= events[i].dataValues.id %>', '<%= events[i].dataValues.user_name %>', '<%= events[i].dataValues.staff_name %>')"><%= moment(events[i].dataValues.end_time).format('YYYY-MM-DD HH:mm:ss') %></td>
               <td>
                 <i class="fa fa-download fa-lg" style="cursor: pointer" title="导出" onclick=""></i>
-                &nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;
                 <i class="fa fa-trash fa-lg" style="cursor: pointer" title="删除" onclick="deleteChatHistory('<%= events[i].dataValues.id %>')"></i>
               </td>
           </tr>

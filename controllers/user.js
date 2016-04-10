@@ -1,4 +1,5 @@
-var models  = require('../models');
+var models = require('../models');
+var moment = require('moment'); // date format
 
 // show user chat page
 exports.showChat = function(req, res, next) {
@@ -22,40 +23,29 @@ exports.showChat = function(req, res, next) {
 // show user chat history page
 exports.showHistory = function(req, res, next) {
 
-  // models.CallCenterEvent.findAll({
-  //   where: {
-  //     user_id: req.query.userid
-  //   },
-  //   include: [ models.CallCenterContent ]
-  // }).then(function(events) {
-  //   for (i in events) {
-  //     console.log(events[i].dataValues);
-  //   }
+  // 先查询用户信息
+  models.PublicNumberFollower.findOne({
+    attributes: ['headimgurl'],
+    where: {
+      openid: req.query.userid
+    }
+  }).then(function(user) {
+    // 再查用户消息
+    var userheadimgurl = user.dataValues.headimgurl;
+    models.CallCenterEvent.findAll({
+      where: {
+        user_id: req.query.userid
+      },
+      include: [ models.CallCenterContent ]
+    }).then(function(events) {
+      res.render('userHistory', {
+        moment: moment,
+        events: events,
+        userheadimgurl: userheadimgurl
+      });
+    });
 
+  });
 
-
-  // });
-
-  res.render('userHistory')
 }
 
-// exports.showChatHistory = function(req, res, next) {
-
-//   models.CallCenterContent.findAll({
-//     where: {
-//       CallCenterEventId: req.body.eventid
-//     }
-//   }).then(function(contents) {
-
-//     var templateString = fs.readFileSync('../views/templates/chatHistory.ejs', 'utf-8');
-//     var html = ejs.render(templateString, {
-//       moment   : moment,
-//       contents : contents,
-//       username : '用户',
-//       staffname: req.session.staffname
-//     });
-//     res.json({ chatHistory: html });
-
-//   });
-
-// }

@@ -30,33 +30,54 @@
 
   <body>
 
-        <!-- DIRECT CHAT WARNING -->
         <div id="chatBox" class="box box-primary direct-chat direct-chat-primary" style="margin: 0;">
+
           <div class="box-header" style="position: relative;top: 0px;left: 5px;right: 5px;text-align: center;">
             <span><i class="fa fa-chevron-left fa-lg" style="float: left;" id="backButton" title="返回"></i></span>
             <h4 style="display: inline;">我的消息</h4>
-            <!-- <span><i class="fa fa-commenting-o fa-lg" style="float: right;" id="chatHistory" title="聊天记录"></i></span> -->
-          </div><!-- /.box-header -->
+          </div>
+
           <div class="box-body">
-            <!-- Conversations are loaded here -->
+
             <div class="direct-chat-messages" style="margin-bottom: 0;padding-bottom: 10%;">
-              <h1>Hello World!</h1>
 
-              <!-- Message to the left or right -->
+              <% for (i in events) {%>
 
-            </div><!--/.direct-chat-messages-->
+                <% for (j in events[i].dataValues.CallCenterContents) { %>
 
-          </div><!-- /.box-body -->
-<!--           <div class="box-footer" style="position: fixed;bottom: 0px;left: 5px;right: 5px;">
-            <div class="input-group">
-              <div class="input-group-addon"><i class="fa fa-smile-o"></i></div>
-              <input type="text" placeholder="请输入您的的消息" class="form-control" id="inputMessage">
-              <span class="input-group-btn">
-                <button type="button" class="btn btn-primary btn-flat" id="sendButton">发送</button>
-              </span>
+                  <% if (events[i].dataValues.CallCenterContents[j].dataValues.speaker) { %>
+
+                    <div class="direct-chat-msg">
+                      <div class="direct-chat-info clearfix">
+                        <span class="direct-chat-name pull-left"><%= events[i].dataValues.staff_name %></span>
+                        <span class="direct-chat-timestamp pull-right"><%= moment(events[i].dataValues.CallCenterContents[j].dataValues.speak_time).format('YYYY-MM-DD HH:mm:ss') %></span>
+                      </div>
+                      <img class="direct-chat-img" src="../images/staff1-128x128.jpg" alt="message user image"><!-- /.direct-chat-img -->
+                      <div class="direct-chat-text" style="float: left;margin-left: 10px;max-width: 85%;"><%= events[i].dataValues.CallCenterContents[j].dataValues.content %></div>
+                    </div>
+
+                    <% } else { %>
+
+                      <div class="direct-chat-msg right">
+                        <div class="direct-chat-info clearfix">
+                          <span class="direct-chat-name pull-right"><%= events[i].dataValues.user_name %></span>
+                          <span class="direct-chat-timestamp pull-left"><%= moment(events[i].dataValues.CallCenterContents[j].dataValues.speak_time).format('YYYY-MM-DD HH:mm:ss') %></span>
+                        </div>
+                        <img class="direct-chat-img" src="<%= userheadimgurl %>" alt="message user image">
+                        <div class="direct-chat-text" style="float: right;margin-right: 10px;max-width: 85%;"><%= events[i].dataValues.CallCenterContents[j].dataValues.content %></div>
+                      </div>
+
+                    <% } %>
+
+                <% } %>
+
+              <% } %>
+
             </div>
-          </div> -->
-        </div><!--/.direct-chat -->
+
+          </div>
+          <!-- <div class="box-footer"></div> -->
+        </div>
 
 
     <!-- REQUIRED JS SCRIPTS -->
@@ -67,6 +88,27 @@
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <!-- AdminLTE App -->
     <script src="adminlte/js/app.min.js"></script>
+
+    <script>
+
+      $(document).ready(function(){
+        // 调整direct-chat-messages高度
+        var box_height = $(window).height();
+        var header_height = $(".box-header").height();
+        $(".direct-chat-messages").css("height", box_height - header_height - 40);
+
+        // 滚动聊天栏到最底部
+        var height = $(".direct-chat-messages").prop("scrollHeight");
+        $(".direct-chat-messages").prop('scrollTop', height);
+
+        // 返回之前的页面
+        $("#backButton").click(function() {
+          window.history.back();
+        });
+      });
+
+
+    </script>
 
 
   </body>

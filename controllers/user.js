@@ -19,16 +19,24 @@ exports.showChat = function(req, res, next) {
 
 }
 
-// show user chat history
+// show user chat history page
 exports.showHistory = function(req, res, next) {
 
-  // models.CallCenterContent.findAll({
+  // models.CallCenterEvent.findAll({
   //   where: {
-
+  //     user_id: req.query.userid
+  //   },
+  //   include: [ models.CallCenterContent ]
+  // }).then(function(events) {
+  //   for (i in events) {
+  //     console.log(events[i].dataValues);
   //   }
-  // })
 
 
+
+  // });
+
+  res.render('userHistory')
 }
 
 // exports.showChatHistory = function(req, res, next) {

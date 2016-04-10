@@ -3,21 +3,23 @@ var moment = require('moment'); // date format
 var fs     = require('fs');
 var ejs    = require('ejs');
 
-var io = require('socket.io')();
+var io     = require('socket.io')();
 
-var onlineUsers = {}; //在线用户列表
+var onlineUsers  = {}; //在线用户列表
 var onlineStaffs = {}; //在线客服列表
-var services = {}; //当前服务列表
+var services     = {}; //当前服务列表
 
-//每隔5秒为用户分配一次客服
+// 每隔5秒为用户分配一次客服
 setInterval(server, 5000);
+// 每隔10s检查一次所有用户上次的发言时间
+setInterval(userdisconnect, 10000);
 
 io.on('connection', function(socket) {
   // console.log(socket.id + ' connected');
 
   socket.on('user login', addUser);
 
-  socket.on('disconnect', removeUser);
+  // socket.on('disconnect', removeUser);
 
   socket.on('staff login', addStaff);
 
@@ -104,6 +106,17 @@ function server() {
   updateWaitUserList();
 }
 
+// 用户自动断开服务
+function userdisconnect() {
+  var now = new Date();
+  for (userid in onlineUsers) {
+    if (now - onlineUsers[userid].lastspeaktime > 9000) {
+      onlineUsers[userid].socket.emit('log', '因长时间未收到您的消息，会话主动关闭，欢迎您再次咨询');
+      removeUser(userid);
+    }
+  }
+}
+
 //客服聊天服务
 function chatServer(data) {
 
@@ -120,29 +133,41 @@ function chatServer(data) {
 }
 
 function addUser(data) {
+  // 如果用户不存在 新增一个用户
+  if (onlineUsers[data.userid] === undefined) {
+    //将用户名和id存入socket
+    this.userid = data.userid;
+    this.username = data.username;
 
-  //将用户名和id存入socket
-  this.userid = data.userid;
-  this.username = data.username;
+    console.log(data.username + '登入！');
 
-  console.log(data.username + '登入！');
+    //将用户加入在线用户列表
+    onlineUsers[data.userid] = {
+      userid       : data.userid,
+      username     : data.username,
+      isServed     : false,
+      requesttime  : new Date(),
+      lastspeaktime: new Date(),
+      socket       : this
+    };
 
-  //将用户加入在线用户列表
-  onlineUsers[data.userid] = {
-    userid     : data.userid,
-    username   : data.username,
-    isServed   : false,
-    requesttime: new Date(),
-    socket     : this
-  };
+    this.emit('log', '连接成功！' + data.username + ' 欢迎登陆！');
+    this.emit('log', '正在为您分配客服，请稍等...');
 
-  this.emit('log', '连接成功！' + data.username + ' 欢迎登陆！');
-  this.emit('log', '正在为您分配客服，请稍等...');
+    // 更新在线用户列表
+    updateUserList();
+    // 更新wait page页面的待接入用户列表
+    updateWaitUserList();
 
-  // 更新在线用户列表
-  updateUserList();
-  // 更新wait page页面的待接入用户列表
-  updateWaitUserList();
+  } else {
+    // 用户重连 更新socket
+    onlineUsers[data.userid].socket = this;
+    onlineUsers[data.userid].lastspeaktime = new Date();
+    this.emit('log', '欢迎回来');
+    this.emit('log', services[data.userid].staffname + '正在为您服务');
+  }
+
+
 }
 
 function addStaff(data) {
@@ -237,42 +262,80 @@ function addStaff(data) {
 
 }
 
-function removeUser(data) {
+// function removeUser(data) {
 
-  if (this.username) { //如果是用户退出
+//   if (this.username) { //如果是用户退出
 
-    console.log(this.username + '登出！');
-    //更新onlineUsers列表
-    var user = onlineUsers[this.userid];
-    delete onlineUsers[this.userid];
-    updateUserList();
+//     console.log(this.username + '登出！');
+//     //更新onlineUsers列表
+//     var user = onlineUsers[this.userid];
+//     delete onlineUsers[this.userid];
+//     updateUserList();
 
-    //移除接入用户
-    onlineStaffs[services[user.userid].staffid].socket.emit('remove served user', {
-      userid: user.userid,
-      username: user.username
-    });
+//     //移除接入用户
+//     onlineStaffs[services[user.userid].staffid].socket.emit('remove served user', {
+//       userid: user.userid,
+//       username: user.username
+//     });
 
-    //对应客服服务数-1
-    onlineStaffs[services[user.userid].staffid].currentserver --;
-    updateStaffList();
+//     //对应客服服务数-1
+//     onlineStaffs[services[user.userid].staffid].currentserver --;
+//     updateStaffList();
 
-    // callcent_event表插入服务结束记录
-    models.CallCenterEvent.update({
-      end_time: new Date()
-    }, {
-      where: {
-        id: services[user.userid].id
-      }
-    });
+//     // callcent_event表插入服务结束记录
+//     models.CallCenterEvent.update({
+//       end_time: new Date()
+//     }, {
+//       where: {
+//         id: services[user.userid].id
+//       }
+//     });
 
-    //更新services列表
-    delete services[user.userid];
-    updateServiceList();
+//     //更新services列表
+//     delete services[user.userid];
+//     updateServiceList();
 
-    // 更新wait page页面的待接入用户列表
-    updateWaitUserList();
-  }
+//     // 更新wait page页面的待接入用户列表
+//     updateWaitUserList();
+//   }
+
+// }
+
+function removeUser(userid) {
+
+  console.log(onlineUsers[userid].username + '登出！');
+  //更新onlineUsers列表
+  var user = onlineUsers[userid];
+  var isServed = onlineUsers[userid].isServed;
+  delete onlineUsers[userid];
+  if (!isServed) return;
+  updateUserList();
+
+  //移除接入用户
+  onlineStaffs[services[user.userid].staffid].socket.emit('remove served user', {
+    userid: user.userid,
+    username: user.username
+  });
+
+  //对应客服服务数-1
+  onlineStaffs[services[user.userid].staffid].currentserver --;
+  updateStaffList();
+
+  // callcent_event表插入服务结束记录
+  models.CallCenterEvent.update({
+    end_time: new Date()
+  }, {
+    where: {
+      id: services[user.userid].id
+    }
+  });
+
+  //更新services列表
+  delete services[user.userid];
+  updateServiceList();
+
+  // 更新wait page页面的待接入用户列表
+  updateWaitUserList();
 
 }
 
@@ -386,6 +449,8 @@ function emitToStaff(data) {
       speaker          : 0,
       content           : data.message
   });
+
+  onlineUsers[data.userid].lastspeaktime = new Date();
 
 }
 

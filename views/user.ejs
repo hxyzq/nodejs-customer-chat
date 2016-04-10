@@ -35,7 +35,7 @@
           <div class="box-header" style="position: relative;top: 0px;left: 5px;right: 5px;text-align: center;">
             <span><i class="fa fa-chevron-left fa-lg" style="float: left;" id="backButton" title="返回"></i></span>
             <h3 style="display: inline;">时尚汇</h3>
-            <span><i class="fa fa-commenting-o fa-lg" style="float: right;" title="聊天记录"></i></span>
+            <span><i class="fa fa-commenting-o fa-lg" style="float: right;" id="chatHistory" title="聊天记录"></i></span>
           </div><!-- /.box-header -->
           <div class="box-body">
             <!-- Conversations are loaded here -->
@@ -108,10 +108,14 @@
             message: data.message
           });
         });
-
+        // 返回之前的页面
         $("#backButton").click(function() {
           window.history.back();
-        })
+        });
+        // 跳转到聊天记录页面
+        $("#chatHistory").click(function() {
+          window.location.href = '/userHistory?userid=<%= userid %>&username=<%= username %>';
+        });
         //inputMessage检测回车发送消息
         $('#inputMessage').keydown(function(event) {
          if(13 == event.keyCode) {

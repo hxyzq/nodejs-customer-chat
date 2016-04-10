@@ -72,9 +72,9 @@
     });
 
 
-    function showChatHistory(eventid) {
+    function showChatHistory(eventid, username, staffname) {
 
-      $.post("/history/showChatHistory", { eventid: eventid }, function (data) {
+      $.post("/history/showChatHistory", { eventid: eventid, username: username, staffname: staffname }, function (data) {
 
         var popover = $('#chatHistoryBox').data('bs.popover');
         popover.options.content = data.chatHistory; // 设置弹出框的内容

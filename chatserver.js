@@ -64,7 +64,9 @@ function server() {
   models.CallCenterEvent.create({
       id        : id,
       user_id   : user.userid,
+      user_name : user.username,
       staff_id  : staff.staffid,
+      staff_name: staff.staffname,
       start_time: new Date(),
   });
 

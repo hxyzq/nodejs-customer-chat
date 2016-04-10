@@ -7,7 +7,9 @@ module.exports = function(sequelize, DataTypes) {
       primaryKey: true
     },
     user_id     : DataTypes.STRING(255), // 用户id
+    user_name   : DataTypes.STRING(255), // 用户名
     staff_id    : DataTypes.STRING(255), // 客服id
+    staff_name  : DataTypes.STRING(255), // 客服名
     start_time  : DataTypes.DATE,        // 服务开始时间
     end_time    : DataTypes.DATE         // 服务结束时间
   }, {

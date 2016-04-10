@@ -154,15 +154,16 @@ exports.showChatHistory = function(req, res, next) {
   models.CallCenterContent.findAll({
     where: {
       CallCenterEventId: req.body.eventid
-    }
+    },
+    include: [ models.CallCenterEvent ]
   }).then(function(contents) {
 
     var templateString = fs.readFileSync('../views/templates/chatHistory.ejs', 'utf-8');
     var html = ejs.render(templateString, {
       moment   : moment,
       contents : contents,
-      username : '用户',
-      staffname: req.session.staffname
+      username : req.body.username,
+      staffname: req.body.staffname
     });
     res.json({ chatHistory: html });
 

@@ -29,6 +29,7 @@ router.get('/index', auth.staffRequired, function (req, res, next) {
 
 
 router.get('/user', user.showChat); // 用户聊天页面
+router.get('/userHistory', user.showHistory) // 用户聊天记录
 
 router.get('/user2', function (req, res, next) {
     res.render('user2');

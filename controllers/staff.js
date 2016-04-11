@@ -193,6 +193,42 @@ exports.deleteChatHistory = function(req, res, next) {
 
 }
 
+exports.downloadChatHistroy = function(req, res, next) {
+
+  models.CallCenterEvent.findOne({
+    where: {
+      id: req.query.eventid
+    },
+    include: [ models.CallCenterContent ]
+  }).then(function(event) {
+
+    // 生成消息记录文件
+    var txt = '消息记录\r\n\r\n';
+    txt += '================================================================\r\n';
+    txt += '用户名:' + event.dataValues.user_name + '    客服名:' + event.dataValues.staff_name + '\r\n';
+    txt += '开始时间:' + moment(event.dataValues.start_time).format('YYYY-MM-DD HH:mm:ss');
+    txt += '    结束时间:' + moment(event.dataValues.end_time).format('YYYY-MM-DD HH:mm:ss') + '\r\n';
+    txt += '================================================================\r\n\r\n';
+    for (i in event.dataValues.CallCenterContents) {
+      // console.log(event.dataValues.CallCenterContents[i].dataValues);
+      txt += moment(event.dataValues.CallCenterContents[i].dataValues.speak_time).format('YYYY-MM-DD HH:mm:ss') + ' ';
+      txt += (event.dataValues.CallCenterContents[i].dataValues.speaker ? event.dataValues.staff_name : event.dataValues.user_name) + '\r\n';
+      txt += event.dataValues.CallCenterContents[i].dataValues.content + '\r\n\r\n';
+    }
+    var filename = '../tmp/history/' + event.dataValues.user_name + '_' + event.dataValues.id + '.txt';
+    fs.writeFile(filename, txt, function (err) {
+        if (err) {
+          throw err;
+          res.send(err);
+        }
+        console.log(filename + ' created!');
+        res.download(filename);
+    });
+
+  });
+
+}
+
 exports.showHistoryList = function(req, res, next) {
   // console.log(req.body);
 

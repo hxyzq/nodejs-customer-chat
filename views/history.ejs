@@ -101,6 +101,10 @@
       });
     }
 
+    function downloadChatHistroy(eventid) {
+      window.location.href = '/history/download?eventid=' + eventid;
+    }
+
     function removeProp() {
       $('#chatHistoryBox').popover('hide');
     }

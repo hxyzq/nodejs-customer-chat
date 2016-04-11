@@ -18,8 +18,10 @@ router.get('/history', auth.staffRequired, staff.showHistory); // 客服历史�
 router.get('/profile', auth.staffRequired, staff.showProfile); // 客服个人信息页面
 router.post('/profile', auth.staffRequired, staff.setProfile); // 提交个人信息
 
-router.post('/history/showChatHistory', staff.showChatHistory);
-router.post('/history/deleteChatHistory', staff.deleteChatHistory);
+router.post('/history/showChatHistory', staff.showChatHistory); //显示聊天记录
+router.post('/history/deleteChatHistory', staff.deleteChatHistory); // 删除聊天记录
+router.get('/history/download', staff.downloadChatHistroy); //下载聊天记录
+
 router.post('/history/loadPage', staff.showHistoryList);
 
 

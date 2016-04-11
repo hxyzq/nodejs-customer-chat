@@ -11,8 +11,8 @@ var services     = {}; //当前服务列表
 
 // 每隔5秒为用户分配一次客服
 setInterval(server, 5000);
-// 每隔10s检查一次所有用户上次的发言时间
-setInterval(userdisconnect, 10000);
+// 每隔60s检查一次所有用户上次的发言时间
+setInterval(userdisconnect, 60000);
 
 io.on('connection', function(socket) {
   // console.log(socket.id + ' connected');
@@ -110,7 +110,7 @@ function server() {
 function userdisconnect() {
   var now = new Date();
   for (userid in onlineUsers) {
-    if (now - onlineUsers[userid].lastspeaktime > 9000) {
+    if (now - onlineUsers[userid].lastspeaktime > 59000) {
       onlineUsers[userid].socket.emit('log', '因长时间未收到您的消息，会话主动关闭，欢迎您再次咨询');
       removeUser(userid);
     }

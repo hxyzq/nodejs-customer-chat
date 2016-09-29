@@ -42,3 +42,4 @@ test.ejs
 .idea
 tmp
 sessions
+.DS_Store

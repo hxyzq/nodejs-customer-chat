@@ -57,7 +57,7 @@ exports.showProfile = function(req, res, next) {
       message.success = '保存成功';
     }
     if (req.query.save === 'fail') {
-      message.error = '保存失败'
+      message.error = '保存失败';
     }
     if (req.query.changepass === 'success') {
       message.changepasssucc = '密码已修改';

@@ -9,7 +9,7 @@ var auth = require('../middlewares/auth');
 
 router.get('/login', sign.showLogin);  // 进入登录页面.
 router.post('/login', sign.login);  // 登录校验
-router.get('/logout', sign.logout) // 登出
+router.get('/logout', sign.logout); // 登出
 
 router.get('/', auth.staffRequired, staff.showChat); // 首页
 router.get('/chat', auth.staffRequired, staff.showChat); // 客服聊天页面
@@ -31,7 +31,7 @@ router.get('/index', auth.staffRequired, function (req, res, next) {
 
 
 router.get('/user', user.showChat); // 用户聊天页面
-router.get('/userHistory', user.showHistory) // 用户聊天记录
+router.get('/userHistory', user.showHistory); // 用户聊天记录
 
 router.get('/user2', function (req, res, next) {
     res.render('user2');

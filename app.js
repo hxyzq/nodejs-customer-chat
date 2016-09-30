@@ -5,12 +5,12 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var config = require('./config');
+var flash = require('connect-flash');
+
 // initializing express-session middleware
 var session = require('express-session');
-var FileStore = require('session-file-store')(session);
-// var SessionStore = require('session-file-store')(Session);
-// var session = Session({store: new SessionStore({path: __dirname+'/tmp/sessions'}), secret: 'pass', resave: true, saveUninitialized: true});
-
+var MongoStore = require('connect-mongo')(session);
 
 var routes = require('./routes/index');
 
@@ -30,15 +30,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
 // session support
 // app.use(session);
 app.use(session({
-    store: new FileStore,
-    secret: '0123456789QWERTY',
-    resave: true,
-    saveUninitialized: true
-  })
-);
+	secret: config.session_secret,
+	cookie: { maxAge: 60000 },
+	resave: false,
+	saveUninitialized: true,
+	store: new MongoStore({
+		url: config.db
+	})
+}));
 
 app.use('/', routes);
 

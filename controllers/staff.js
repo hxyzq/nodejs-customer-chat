@@ -5,6 +5,7 @@ var moment = require('moment'); // date format
 
 var config = require('../config');
 var models = require('../models');
+var Staff = models.Staff;
 
 // show staff chat page
 exports.showChat = function(req, res, next) {
@@ -13,7 +14,7 @@ exports.showChat = function(req, res, next) {
     staffid: req.session.staffid,
     staffname: req.session.staffname
   });
-}
+};
 
 // show staff wait page
 exports.showWait = function(req, res, next) {
@@ -22,7 +23,7 @@ exports.showWait = function(req, res, next) {
     staffid: req.session.staffid,
     staffname: req.session.staffname
   });
-}
+};
 
 // show staff history page
 exports.showHistory = function(req, res, next) {
@@ -41,46 +42,33 @@ exports.showHistory = function(req, res, next) {
     });
 
   });
-}
+};
 
 // show staff profile page
 exports.showProfile = function(req, res, next) {
-  // 根据account_info_id查platform_staff_info表
-  models.PlatformStaff.findOne({
-      attributes: ['real_name', 'telephone', 'mobilephone', 'email'],
-      where: {
-        account_info_id: req.session.staffid
-      }
-  }).then(function(user) {
-    var message = {};
-    if (req.query.save === 'success') {
-      message.success = '保存成功';
-    }
-    if (req.query.save === 'fail') {
-      message.error = '保存失败';
-    }
-    if (req.query.changepass === 'success') {
-      message.changepasssucc = '密码已修改';
-    }
-    if (req.query.changepass == 'fail') {
-      message.changepasserr = '当前密码错误';
-    }
 
-    res.render('profile', {
-      title    : config.name,
-      staffid  : req.session.staffid,
-      staffname: req.session.staffname,
-      message  : message,
-      staff: {
-        realname   : user.dataValues.real_name,
-        telephone  : user.dataValues.telephone,
-        mobilephone: user.dataValues.mobilephone,
-        email      : user.dataValues.email
-      }
-    });
+  Staff
+	  .findOne({ '_id': req.session.staffid })
+	  .exec(function (err, staff) {
+			if (err) {
+				req.flash('error', err.message);
+				res.status(500);
+				return res.redirect('/');
+			} else {
+				res.render('profile', {
+					title    : config.name,
+					staffid  : req.session.staffid,
+					staffname: req.session.staffname,
+					staff    : staff,
+					success  : req.flash('success').toString(),
+					error    : req.flash('error').toString(),
+					changepasssucc: req.flash('changepasssucc').toString(),
+					changepasserr : req.flash('changepasserr').toString()
+				});
 
-  });
-}
+			}
+	  });
+};
 
 // set staff profile
 exports.setProfile = function(req, res, next) {
@@ -88,66 +76,64 @@ exports.setProfile = function(req, res, next) {
   var action = req.body.action;
   if (action === 'change_profile') {
 
-    var realname    = req.body.realname;
-    var telephone   = req.body.telephone;
-    var mobilephone = req.body.mobilephone;
-    var email       = req.body.email;
+	  var update = {
+			realname:    req.body.realname,
+		  mobilephone: req.body.mobilephone,
+		  email:       req.body.email,
+		  greetings:   req.body.greetings
+	  };
+		var options = {
+			new: true
+		};
+	  Staff.findByIdAndUpdate(req.session.staffid, update, options, function (err, staff) {
+		  if (err) {
+		  	req.flash('error', err.message);
+		  } else {
+			  req.flash('success', '保存成功!');
+		  }
+		  return res.redirect('/profile');
+	  });
 
-    // 更新platform_staff_info表
-    models.PlatformStaff.update({
-      real_name  : realname,
-      telephone  : telephone,
-      mobilephone: mobilephone,
-      email      : email
-    }, {
-      where: {
-        account_info_id: req.session.staffid
-      }
-    }).then(function(result) {
-      if (result) {
-        res.redirect('/profile?save=success');
-      } else {
-        res.redirect('/profile?save=fail');
-      }
-    });
   }
+
   if (action === 'change_password') {
     var oldpassword = req.body.oldpassword;
     var newpassword = req.body.newpassword;
-    // 根据staffid查account_info表获取password
-    models.AccountInfo.findOne({
-        attributes: ['password'],
-        where: {
-          id: req.session.staffid
-        }
-    }).then(function(user) {
-      console.log(user.dataValues);
-      //md5
-      var md5 = crypto.createHash('md5');
-      oldpassword = md5.update(oldpassword).digest('hex');
 
-      if (oldpassword !== user.dataValues.password) {
-        res.redirect('/profile?changepass=fail');
-      } else {
-        var md5 = crypto.createHash('md5');
-        newpassword = md5.update(newpassword).digest('hex');
-        // 更新account_info表的password
-        models.AccountInfo.update({
-          password: newpassword
-        }, {
-          where: {
-            id: req.session.staffid
-          }
-        }).then(function() {
-          res.redirect('/profile?changepass=success');
-        });
-      }
+	  //md5
+	  var md5 = crypto.createHash('md5');
+	  oldpassword = md5.update(oldpassword).digest('hex');
+	  md5 = crypto.createHash('md5');
+	  newpassword = md5.update(newpassword).digest('hex');
 
-    });
+	  Staff.findById(req.session.staffid, function (err, staff) {
+		  if (err) {
+			  req.flash('changepasserr', err.message);
+			  return res.redirect('/profile');
+		  } else {
+
+			  if (oldpassword !== staff.password) {
+				  req.flash('changepasserr', '当前密码错误!');
+				  return res.redirect('/profile');
+			  } else {
+				  staff.password = newpassword;
+				  staff.save(function (err) {
+					  if (err) {
+						  req.flash('changepasserr', err.message);
+						  return res.redirect('/profile');
+					  } else {
+					  	req.flash('changepasssucc', '密码已修改!');
+						  return res.redirect('/profile');
+					  }
+				  });
+			  }
+
+		  }
+	  });
 
   }
 
-}
+};
 
 exports.showChatHistory = function(req, res, next) {
 

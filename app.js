@@ -31,8 +31,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+app.use(flash());
+
 // session support
-// app.use(session);
 app.use(session({
 	secret: config.session_secret,
 	cookie: { maxAge: 60000 },

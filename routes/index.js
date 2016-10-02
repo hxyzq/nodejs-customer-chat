@@ -7,7 +7,7 @@ var user = require('../controllers/user');
 
 var auth = require('../middlewares/auth');
 
-router.get('/login', sign.showLogin);  // 进入登录页面.
+router.get('/login', sign.showLogin);  // 进入登录页面
 router.post('/login', sign.login);  // 登录校验
 router.get('/logout', sign.logout); // 登出
 
